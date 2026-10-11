@@ -1,0 +1,1448 @@
+{
+  "meta": {
+    "project": "bistro",
+    "generatedFrom": "projects/bistro/05-glossary/glossary.md",
+    "publishedFrom": "v2",
+    "generatedAt": "2026-10-10",
+    "note": "A view of the glossary for agents. Never a source: regenerated, never edited. Lines marked generated are the reverse of a written line, built from its kind. Items under unconfirmed are guesses no expert has confirmed yet.",
+    "kinds": {
+      "is_a": {
+        "inverse": "has_kind",
+        "flow": "structure"
+      },
+      "has_kind": {
+        "inverse": "is_a",
+        "flow": "structure"
+      },
+      "aspect_of": {
+        "inverse": "has_aspect",
+        "flow": "structure"
+      },
+      "has_aspect": {
+        "inverse": "aspect_of",
+        "flow": "structure"
+      },
+      "contains": {
+        "inverse": "part_of",
+        "flow": "structure"
+      },
+      "part_of": {
+        "inverse": "contains",
+        "flow": "structure"
+      },
+      "identifies": {
+        "inverse": "identified_by",
+        "flow": "structure"
+      },
+      "identified_by": {
+        "inverse": "identifies",
+        "flow": "structure"
+      },
+      "holds": {
+        "inverse": "held_by",
+        "flow": "structure"
+      },
+      "held_by": {
+        "inverse": "holds",
+        "flow": "structure"
+      },
+      "employs": {
+        "inverse": "employed_by",
+        "flow": "structure"
+      },
+      "employed_by": {
+        "inverse": "employs",
+        "flow": "structure"
+      },
+      "requires": {
+        "inverse": "required_by",
+        "flow": "structure"
+      },
+      "required_by": {
+        "inverse": "requires",
+        "flow": "structure"
+      },
+      "blocks": {
+        "inverse": "blocked_by",
+        "flow": "structure"
+      },
+      "blocked_by": {
+        "inverse": "blocks",
+        "flow": "structure"
+      },
+      "governs": {
+        "inverse": "governed_by",
+        "flow": "produces"
+      },
+      "governed_by": {
+        "inverse": "governs",
+        "flow": "consumes"
+      },
+      "authorizes": {
+        "inverse": "authorized_by",
+        "flow": "produces"
+      },
+      "authorized_by": {
+        "inverse": "authorizes",
+        "flow": "consumes"
+      },
+      "follows": {
+        "inverse": "precedes",
+        "flow": "structure"
+      },
+      "precedes": {
+        "inverse": "follows",
+        "flow": "structure"
+      },
+      "performs": {
+        "inverse": "performed_by",
+        "flow": "produces"
+      },
+      "performed_by": {
+        "inverse": "performs",
+        "flow": "consumes"
+      },
+      "serves": {
+        "inverse": "served_by",
+        "flow": "produces"
+      },
+      "served_by": {
+        "inverse": "serves",
+        "flow": "consumes"
+      },
+      "creates": {
+        "inverse": "created_by",
+        "flow": "produces"
+      },
+      "created_by": {
+        "inverse": "creates",
+        "flow": "consumes"
+      },
+      "becomes": {
+        "inverse": "became_from",
+        "flow": "produces"
+      },
+      "became_from": {
+        "inverse": "becomes",
+        "flow": "consumes"
+      },
+      "verifies": {
+        "inverse": "verified_by",
+        "flow": "produces"
+      },
+      "verified_by": {
+        "inverse": "verifies",
+        "flow": "produces"
+      },
+      "pays": {
+        "inverse": "paid_by",
+        "flow": "produces"
+      },
+      "paid_by": {
+        "inverse": "pays",
+        "flow": "consumes"
+      },
+      "bills": {
+        "inverse": "billed_by",
+        "flow": "produces"
+      },
+      "billed_by": {
+        "inverse": "bills",
+        "flow": "consumes"
+      },
+      "feeds": {
+        "inverse": "fed_by",
+        "flow": "produces"
+      },
+      "fed_by": {
+        "inverse": "feeds",
+        "flow": "consumes"
+      },
+      "measures": {
+        "inverse": "measured_by",
+        "flow": "produces"
+      },
+      "measured_by": {
+        "inverse": "measures",
+        "flow": "produces"
+      },
+      "concerns": {
+        "inverse": "concerned_by",
+        "flow": "produces"
+      },
+      "concerned_by": {
+        "inverse": "concerns",
+        "flow": "consumes"
+      }
+    },
+    "coverage": {
+      "entries": 27,
+      "byType": {
+        "action": 2,
+        "document": 3,
+        "entity": 11,
+        "event": 4,
+        "metric": 2,
+        "role": 4,
+        "state": 1
+      },
+      "untyped": 0,
+      "relationLines": 46,
+      "linesWithKind": 45,
+      "linesWithoutKind": 1,
+      "standalone": 1,
+      "standaloneTerms": [
+        "Family meal"
+      ]
+    },
+    "unresolved": []
+  },
+  "entries": [
+    {
+      "term": "Guest",
+      "type": "role",
+      "status": "verified",
+      "category": "People",
+      "core": true,
+      "definition": "A person who comes to the restaurant to eat, from the moment they arrive until they leave.",
+      "alsoCalled": [
+        "customer (internal only)"
+      ],
+      "notConfusedWith": [
+        "Cover"
+      ],
+      "dependsOn": [],
+      "rulings": [
+        "001"
+      ],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": null,
+          "kind": "part_of",
+          "object": "Party",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Party contains [[Guest]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "Allergy note",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Allergy note concerns [[Guest]]"
+        },
+        {
+          "verb": null,
+          "kind": "measured_by",
+          "object": "Cover",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Cover counts [[Guest]]"
+        }
+      ]
+    },
+    {
+      "term": "Party",
+      "type": "entity",
+      "status": "verified",
+      "category": "People",
+      "core": true,
+      "definition": "One or more Guests who arrive together and eat together at one table.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Guest"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "contains",
+          "kind": "contains",
+          "object": "Guest",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "has_kind",
+          "object": "Walk-in (party)",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Walk-in (party) is a [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "served_by",
+          "object": "Host",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Host greets [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "Reservation",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Reservation is made for [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "Seating",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Seating places [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "creates",
+          "object": "Order",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Order is asked for by [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "billed_by",
+          "object": "Check",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Check bills [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "creates",
+          "object": "Tip",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Tip is left by [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "held_by",
+          "object": "Table",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Table seats [[Party]]"
+        },
+        {
+          "verb": null,
+          "kind": "measured_by",
+          "object": "Turn",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Turn counts [[Party]]"
+        }
+      ]
+    },
+    {
+      "term": "Walk-in (party)",
+      "type": "entity",
+      "status": "verified",
+      "category": "People",
+      "core": false,
+      "definition": "A Party that arrives to eat with no reservation.",
+      "alsoCalled": [
+        "walk-in (floor)",
+        "walk-in party (on screens)"
+      ],
+      "notConfusedWith": [
+        "Walk-in (cold room)"
+      ],
+      "dependsOn": [
+        "Party"
+      ],
+      "rulings": [
+        "003"
+      ],
+      "isA": "Party",
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "is a",
+          "kind": "is_a",
+          "object": "Party",
+          "flow": "structure",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Server",
+      "type": "role",
+      "status": "verified",
+      "category": "People",
+      "core": true,
+      "definition": "The person who works a Service looking after a section of Tables, takes each party's Order and brings its food.",
+      "alsoCalled": [
+        "waiter"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Table",
+        "Service",
+        "Order"
+      ],
+      "rulings": [
+        "004"
+      ],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "works",
+          "kind": "performs",
+          "object": "Service",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "serves",
+          "kind": "serves",
+          "object": "Table",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "takes",
+          "kind": "creates",
+          "object": "Order",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "performs",
+          "object": "Check",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Check is presented by [[Server]]"
+        },
+        {
+          "verb": null,
+          "kind": "paid_by",
+          "object": "Tip",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Tip pays [[Server]]"
+        }
+      ]
+    },
+    {
+      "term": "Host",
+      "type": "role",
+      "status": "verified",
+      "category": "People",
+      "core": false,
+      "definition": "The person at the door who greets each Party, keeps the book of Reservations and performs every Seating.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Party",
+        "Reservation",
+        "Seating"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "greets",
+          "kind": "serves",
+          "object": "Party",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "keeps",
+          "kind": "performs",
+          "object": "Reservation",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "performs",
+          "kind": "performs",
+          "object": "Seating",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "creates",
+          "object": "No-show",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "No-show is marked by [[Host]]"
+        }
+      ]
+    },
+    {
+      "term": "Expo",
+      "type": "role",
+      "status": "verified",
+      "category": "People",
+      "core": false,
+      "definition": "The person at The pass who reads every Ticket, calls each Fire and inspects every plate before it goes out.",
+      "alsoCalled": [
+        "expediter"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "The pass",
+        "Ticket",
+        "Fire"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "works at",
+          "kind": "performs",
+          "object": "The pass",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "reads",
+          "kind": "fed_by",
+          "object": "Ticket",
+          "flow": "consumes",
+          "direction": "written"
+        },
+        {
+          "verb": "calls",
+          "kind": "performs",
+          "object": "Fire",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Reservation",
+      "type": "entity",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "A promise, made for a named Party, that holds a Table at a set time and falls in one Service.",
+      "alsoCalled": [
+        "booking (internal only)"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Table",
+        "Party",
+        "Service"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "is made for",
+          "kind": "concerns",
+          "object": "Party",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "holds",
+          "kind": "holds",
+          "object": "Table",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "falls in",
+          "kind": "part_of",
+          "object": "Service",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "performed_by",
+          "object": "Host",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Host keeps [[Reservation]]"
+        },
+        {
+          "verb": null,
+          "kind": "blocked_by",
+          "object": "No-show",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "No-show voids [[Reservation]]"
+        },
+        {
+          "verb": null,
+          "kind": "precedes",
+          "object": "Seating",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Seating follows [[Reservation]]"
+        }
+      ]
+    },
+    {
+      "term": "No-show",
+      "type": "event",
+      "status": "verified",
+      "category": "The meal",
+      "core": false,
+      "definition": "The moment a Reservation is voided because its party has not arrived 15 minutes after the set time. The Host marks it.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Reservation",
+        "Host"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "voids",
+          "kind": "blocks",
+          "object": "Reservation",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "is marked by",
+          "kind": "created_by",
+          "object": "Host",
+          "flow": "consumes",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Seating",
+      "type": "event",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "The moment a Party is given a Table and sits down: the table its Reservation holds, or the next free one.",
+      "alsoCalled": [
+        "table assignment (internal only)"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Party",
+        "Table",
+        "Reservation"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "places",
+          "kind": "concerns",
+          "object": "Party",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "fills",
+          "kind": "concerns",
+          "object": "Table",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "follows",
+          "kind": "follows",
+          "object": "Reservation",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "performed_by",
+          "object": "Host",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Host performs [[Seating]]"
+        },
+        {
+          "verb": null,
+          "kind": "precedes",
+          "object": "Order",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Order follows [[Seating]]"
+        }
+      ]
+    },
+    {
+      "term": "Order",
+      "type": "entity",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "Everything one Party asks for after its Seating, grouped into Courses.",
+      "alsoCalled": [],
+      "notConfusedWith": [
+        "Ticket"
+      ],
+      "dependsOn": [
+        "Party",
+        "Seating",
+        "Course"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "is asked for by",
+          "kind": "created_by",
+          "object": "Party",
+          "flow": "consumes",
+          "direction": "written"
+        },
+        {
+          "verb": "follows",
+          "kind": "follows",
+          "object": "Seating",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "contains",
+          "kind": "contains",
+          "object": "Course",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "created_by",
+          "object": "Server",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Server takes [[Order]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "Ticket",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Ticket copies [[Order]]"
+        },
+        {
+          "verb": null,
+          "kind": "contains",
+          "object": "Allergy note",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Allergy note is part of [[Order]]"
+        }
+      ]
+    },
+    {
+      "term": "Ticket",
+      "type": "document",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "The kitchen's printed copy of an Order, with its items listed by Course. Each station that cooks part of the order gets its own copy.",
+      "alsoCalled": [
+        "chit",
+        "kitchen_order (internal only)"
+      ],
+      "notConfusedWith": [
+        "Order"
+      ],
+      "dependsOn": [
+        "Order",
+        "Course"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "copies",
+          "kind": "concerns",
+          "object": "Order",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "lists",
+          "kind": "contains",
+          "object": "Course",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "feeds",
+          "object": "Expo",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Expo reads [[Ticket]]"
+        },
+        {
+          "verb": null,
+          "kind": "fed_by",
+          "object": "Allergy note",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Allergy note prints on [[Ticket]]"
+        },
+        {
+          "verb": null,
+          "kind": "feeds",
+          "object": "Station",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Station reads [[Ticket]]"
+        }
+      ]
+    },
+    {
+      "term": "Allergy note",
+      "type": "document",
+      "status": "verified",
+      "category": "The meal",
+      "core": false,
+      "definition": "A note on an Order naming one Guest's allergy. It prints in red on every Ticket for that order.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Order",
+        "Guest",
+        "Ticket"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "is part of",
+          "kind": "part_of",
+          "object": "Order",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "concerns",
+          "kind": "concerns",
+          "object": "Guest",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "prints on",
+          "kind": "feeds",
+          "object": "Ticket",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Fire",
+      "type": "action",
+      "status": "verified",
+      "category": "The meal",
+      "core": false,
+      "definition": "The call to start cooking a Course now, timed so that it reaches the table hot.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Course"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "starts",
+          "kind": "creates",
+          "object": "Course",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "performed_by",
+          "object": "Expo",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Expo calls [[Fire]]"
+        }
+      ]
+    },
+    {
+      "term": "Course",
+      "type": "entity",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "Every Menu item that one table eats at the same time, such as starters, mains or dessert.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Menu item"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "contains",
+          "kind": "contains",
+          "object": "Menu item",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "part_of",
+          "object": "Order",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Order contains [[Course]]"
+        },
+        {
+          "verb": null,
+          "kind": "part_of",
+          "object": "Ticket",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Ticket lists [[Course]]"
+        },
+        {
+          "verb": null,
+          "kind": "created_by",
+          "object": "Fire",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Fire starts [[Course]]"
+        }
+      ]
+    },
+    {
+      "term": "Check",
+      "type": "document",
+      "status": "verified",
+      "category": "The meal",
+      "core": true,
+      "definition": "The bill for one Party that the Server presents at the end of the meal: every Menu item ordered, at its price, plus tax. A party may split it by guest.",
+      "alsoCalled": [
+        "bill"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Party",
+        "Server",
+        "Menu item"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "bills",
+          "kind": "bills",
+          "object": "Party",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "lists",
+          "kind": "contains",
+          "object": "Menu item",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "is presented by",
+          "kind": "performed_by",
+          "object": "Server",
+          "flow": "consumes",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "precedes",
+          "object": "Tip",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Tip is left after [[Check]]"
+        }
+      ]
+    },
+    {
+      "term": "Comp",
+      "type": "action",
+      "status": "verified",
+      "category": "The meal",
+      "core": false,
+      "definition": "Taking one item off a Check at no charge, approved by the floor manager, to make up for a problem.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Check"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "reduces",
+          "kind": null,
+          "object": "Check",
+          "flow": null,
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Tip",
+      "type": "entity",
+      "status": "verified",
+      "category": "The meal",
+      "core": false,
+      "definition": "Money a Party leaves after paying the Check, to pay its Server directly.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Party",
+        "Check",
+        "Server"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "is left by",
+          "kind": "created_by",
+          "object": "Party",
+          "flow": "consumes",
+          "direction": "written"
+        },
+        {
+          "verb": "is left after",
+          "kind": "follows",
+          "object": "Check",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": "pays",
+          "kind": "pays",
+          "object": "Server",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Table",
+      "type": "entity",
+      "status": "verified",
+      "category": "Floor",
+      "core": true,
+      "definition": "A numbered place in the dining room that seats one Party for a meal. It is named by its seats: a four-top seats four.",
+      "alsoCalled": [
+        "deuce",
+        "four-top",
+        "six-top"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Party"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "seats",
+          "kind": "holds",
+          "object": "Party",
+          "flow": "structure",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "served_by",
+          "object": "Server",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Server serves [[Table]]"
+        },
+        {
+          "verb": null,
+          "kind": "held_by",
+          "object": "Reservation",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Reservation holds [[Table]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "Seating",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Seating fills [[Table]]"
+        },
+        {
+          "verb": null,
+          "kind": "measured_by",
+          "object": "Turn",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Turn measures [[Table]]"
+        }
+      ]
+    },
+    {
+      "term": "Service",
+      "type": "event",
+      "status": "verified",
+      "category": "Floor",
+      "core": true,
+      "definition": "One meal period, such as lunch or dinner, from the first seating to the last order.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": null,
+          "kind": "performed_by",
+          "object": "Server",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Server works [[Service]]"
+        },
+        {
+          "verb": null,
+          "kind": "contains",
+          "object": "Reservation",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Reservation falls in [[Service]]"
+        },
+        {
+          "verb": null,
+          "kind": "measured_by",
+          "object": "Cover",
+          "flow": "produces",
+          "direction": "generated",
+          "fromLine": "Cover measures [[Service]]"
+        }
+      ]
+    },
+    {
+      "term": "Cover",
+      "type": "metric",
+      "status": "verified",
+      "category": "Floor",
+      "core": false,
+      "definition": "One Guest who sat down, counted. Covers measure how busy a Service was.",
+      "alsoCalled": [],
+      "notConfusedWith": [
+        "Guest"
+      ],
+      "dependsOn": [
+        "Guest",
+        "Service"
+      ],
+      "rulings": [
+        "002"
+      ],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "counts",
+          "kind": "measures",
+          "object": "Guest",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "measures",
+          "kind": "measures",
+          "object": "Service",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Turn",
+      "type": "metric",
+      "status": "verified",
+      "category": "Floor",
+      "core": false,
+      "definition": "A measure of a Table: how many Partys it seats in one service. Three parties at one table over dinner is three turns.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Table",
+        "Party"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "measures",
+          "kind": "measures",
+          "object": "Table",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "counts",
+          "kind": "measures",
+          "object": "Party",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Menu item",
+      "type": "entity",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": true,
+      "definition": "One dish or drink on the menu, with its price.",
+      "alsoCalled": [
+        "dish"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": null,
+          "kind": "part_of",
+          "object": "Course",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Course contains [[Menu item]]"
+        },
+        {
+          "verb": null,
+          "kind": "part_of",
+          "object": "Check",
+          "flow": "structure",
+          "direction": "generated",
+          "fromLine": "Check lists [[Menu item]]"
+        },
+        {
+          "verb": null,
+          "kind": "created_by",
+          "object": "Station",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Station cooks [[Menu item]]"
+        },
+        {
+          "verb": null,
+          "kind": "concerned_by",
+          "object": "86'd",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "86'd applies to [[Menu item]]"
+        }
+      ]
+    },
+    {
+      "term": "Station",
+      "type": "entity",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": false,
+      "definition": "One cooking position on the line, such as grill, sauté, cold or pastry, with its own cook and ticket printer. It reads each Ticket it is sent, cooks its own Menu items and sends them to The pass.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Ticket",
+        "Menu item",
+        "The pass"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "reads",
+          "kind": "fed_by",
+          "object": "Ticket",
+          "flow": "consumes",
+          "direction": "written"
+        },
+        {
+          "verb": "cooks",
+          "kind": "creates",
+          "object": "Menu item",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": "sends to",
+          "kind": "feeds",
+          "object": "The pass",
+          "flow": "produces",
+          "direction": "written"
+        },
+        {
+          "verb": null,
+          "kind": "fed_by",
+          "object": "Walk-in (cold room)",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Walk-in (cold room) stocks [[Station]]"
+        }
+      ]
+    },
+    {
+      "term": "The pass",
+      "type": "entity",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": false,
+      "definition": "The heated counter between the kitchen and the dining room where finished plates wait to go out.",
+      "alsoCalled": [
+        "pass"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": null,
+          "kind": "performed_by",
+          "object": "Expo",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Expo works at [[The pass]]"
+        },
+        {
+          "verb": null,
+          "kind": "fed_by",
+          "object": "Station",
+          "flow": "consumes",
+          "direction": "generated",
+          "fromLine": "Station sends to [[The pass]]"
+        }
+      ]
+    },
+    {
+      "term": "86'd",
+      "type": "state",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": false,
+      "definition": "The state of a Menu item that has run out for the rest of the service. It comes back on the menu at the next one.",
+      "alsoCalled": [
+        "86",
+        "eighty-sixed"
+      ],
+      "notConfusedWith": [],
+      "dependsOn": [
+        "Menu item"
+      ],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "applies to",
+          "kind": "concerns",
+          "object": "Menu item",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Walk-in (cold room)",
+      "type": "entity",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": false,
+      "definition": "The refrigerated room, big enough to walk into, where the kitchen keeps its ingredients and from which it stocks every Station before a service.",
+      "alsoCalled": [
+        "walk-in (kitchen)"
+      ],
+      "notConfusedWith": [
+        "Walk-in (party)"
+      ],
+      "dependsOn": [
+        "Station"
+      ],
+      "rulings": [
+        "003"
+      ],
+      "isA": null,
+      "aspectOf": null,
+      "relations": [
+        {
+          "verb": "stocks",
+          "kind": "feeds",
+          "object": "Station",
+          "flow": "produces",
+          "direction": "written"
+        }
+      ]
+    },
+    {
+      "term": "Family meal",
+      "type": "event",
+      "status": "verified",
+      "category": "Kitchen",
+      "core": false,
+      "definition": "The meal the kitchen cooks for the whole staff before dinner opens.",
+      "alsoCalled": [],
+      "notConfusedWith": [],
+      "dependsOn": [],
+      "rulings": [],
+      "isA": null,
+      "aspectOf": null,
+      "relations": []
+    }
+  ],
+  "unconfirmed": [
+    {
+      "subject": "Family meal",
+      "kind": "precedes",
+      "object": "Service",
+      "question": "Does family meal come before every service, or only dinner?",
+      "pack": "Kitchen: before service",
+      "row": 1,
+      "status": "unconfirmed",
+      "source": "projects/bistro/04-draft/v2/verification-queue.md"
+    }
+  ]
+}

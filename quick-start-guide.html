@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>One-Vocabulary Quick Start</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f5f7fa;
+    --paper: #ffffff;
+    --ink: #1a2230;
+    --ink-soft: #4d5868;
+    --ink-faint: #8a94a4;
+    --line: #d9dfe8;
+    --accent: #2b4c7e;
+    --accent-ink: #ffffff;
+    --accent-soft: #e6edf7;
+    --stamp: #b3432b;
+    --stamp-ink: #ffffff;
+    --stamp-soft: #fbeae5;
+    --ok: #2e7d5b;
+    --ok-soft: #e3f3ea;
+    --code-bg: #eef1f5;
+    --shadow: 0 1px 2px rgba(26, 34, 48, 0.06), 0 8px 24px rgba(26, 34, 48, 0.06);
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #141a22;
+      --paper: #1c2430;
+      --ink: #e8ecf2;
+      --ink-soft: #b3bcc9;
+      --ink-faint: #7c8798;
+      --line: #2f3a49;
+      --accent: #8fb3e6;
+      --accent-ink: #0f1a2b;
+      --accent-soft: #24344c;
+      --stamp: #f0917c;
+      --stamp-ink: #1a0e0a;
+      --stamp-soft: #3d2620;
+      --ok: #7fd1a8;
+      --ok-soft: #1f3a2d;
+      --code-bg: #111821;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #141a22;
+    --paper: #1c2430;
+    --ink: #e8ecf2;
+    --ink-soft: #b3bcc9;
+    --ink-faint: #7c8798;
+    --line: #2f3a49;
+    --accent: #8fb3e6;
+    --accent-ink: #0f1a2b;
+    --accent-soft: #24344c;
+    --stamp: #f0917c;
+    --stamp-ink: #1a0e0a;
+    --stamp-soft: #3d2620;
+    --ok: #7fd1a8;
+    --ok-soft: #1f3a2d;
+    --code-bg: #111821;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-block: 40px 72px;
+    padding-inline: 20px;
+  }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; }
+  h2 { font-size: 1.6rem; font-weight: 700; line-height: 1.15; }
+  h3 { font-size: 1.05rem; font-weight: 700; }
+  p { margin: 0; max-width: 66ch; }
+  a { color: var(--accent); }
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 0.08em 0.4em;
+    border-radius: 4px;
+  }
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .cm { color: var(--ink-faint); }
+  .eyebrow {
+    font-family: var(--body);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* header */
+  header { display: flex; flex-direction: column; gap: 14px; margin-bottom: 36px; }
+  header p.lede { font-size: 1.12rem; color: var(--ink-soft); }
+
+  /* route strip */
+  .route {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 44px;
+  }
+  .route a {
+    text-decoration: none;
+    color: inherit;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+  }
+  .route a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .route .n {
+    font-family: var(--display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .route .n.check { color: var(--stamp); }
+  .route a.next { background: var(--accent-soft); border-color: var(--accent); }
+  .alt {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .alt .k { font-weight: 700; color: var(--accent); }
+  .alt ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+  .route .t { font-weight: 700; font-size: 0.95rem; line-height: 1.2; }
+  .route .s { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.3; }
+
+  /* steps */
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0 20px;
+    padding-block: 32px;
+    border-top: 1px solid var(--line);
+  }
+  .step .num {
+    font-family: var(--display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    padding-top: 2px;
+  }
+  .step .body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .step .body p { font-size: 1rem; }
+  .step ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; max-width: 66ch; font-size: 1rem; }
+  .step li strong { font-weight: 700; }
+
+  .see {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    align-items: baseline;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--ok);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+  .see .k { font-weight: 700; color: var(--ok); white-space: nowrap; }
+
+  /* yaml table */
+  .fields {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .fields th, .fields td { text-align: left; vertical-align: top; padding: 10px 12px; border-top: 1px solid var(--line); }
+  .fields thead th { border-top: 0; background: var(--accent-soft); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .fields td:first-child { white-space: nowrap; font-family: var(--mono); font-size: 0.85rem; }
+  .table-scroll { overflow-x: auto; }
+
+  /* file tree */
+  .tree {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .tree .new { color: var(--ok); font-weight: 500; }
+  .tree .dim { color: var(--ink-faint); }
+
+  /* checkpoint */
+  .checkpoint {
+    background: var(--stamp-soft);
+    border: 1px solid var(--stamp);
+    border-radius: 8px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+  .checkpoint .eyebrow { color: var(--stamp); }
+  .checkpoint p { font-size: 1rem; }
+  .signals { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .signals li {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 0.95rem;
+    padding: 8px 10px;
+    background: var(--paper);
+    border-radius: 6px;
+  }
+  .signals .pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .pill.good { background: var(--ok-soft); color: var(--ok); }
+  .pill.warn { background: var(--stamp-soft); color: var(--stamp); }
+  .pill.fix  { background: var(--stamp); color: var(--stamp-ink); }
+
+  /* ask */
+  #s5 .eyebrow { color: var(--accent); }
+  .prompts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .prompts li {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .prompts .q { font-family: var(--mono); font-size: 0.86rem; color: var(--accent); }
+  .prompts .w { font-size: 0.86rem; color: var(--ink-soft); }
+
+  footer { margin-top: 40px; font-size: 0.86rem; color: var(--ink-faint); }
+
+  @media (max-width: 640px) {
+    .route { grid-template-columns: 1fr 1fr; }
+    .route a.next { grid-column: 1 / -1; }
+    .step { grid-template-columns: 1fr; gap: 8px; }
+    .prompts { grid-template-columns: 1fr; }
+    .signals li { grid-template-columns: 1fr; gap: 4px; }
+    .signals .pill { justify-self: start; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .route a { transition: border-color 120ms ease; }
+    .route a:hover { border-color: var(--accent); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Getting started</span>
+    <h1>Your first project, from empty folder to pulled sources</h1>
+    <p class="lede">One-Vocabulary reads your team's documents, tickets and code, and turns them into one glossary everyone agrees on. This page covers only the first stretch: make the project, describe its sources, pull them, check the pull. Then hand over to the agent.</p>
+  </header>
+
+  <nav class="route" aria-label="The five stops on this page">
+    <a href="#s1"><span class="n">1</span><span class="t">Create the project</span><span class="s">Terminal, or by hand</span></a>
+    <a href="#s2"><span class="n">2</span><span class="t">Point at the sources</span><span class="s">One file to fill</span></a>
+    <a href="#s3"><span class="n">3</span><span class="t">Pull the sources</span><span class="s">Ask Claude Code</span></a>
+    <a href="#s4"><span class="n check">✓</span><span class="t">Check the manifest</span><span class="s">Your only job here</span></a>
+    <a href="#s5" class="next"><span class="n">4</span><span class="t">Ask the agent</span><span class="s">The next step, every time</span></a>
+  </nav>
+
+  <section class="step" id="s0" style="border-top:0; padding-top:0">
+    <div class="num" aria-hidden="true">0</div>
+    <div class="body">
+      <h2>Before you start</h2>
+      <ul>
+        <li><strong>Open a terminal in this repository's folder.</strong> Every command on this page runs from there. No terminal is fine too: step 1 shows the by-hand way.</li>
+        <li><strong>Open Claude Code in the same folder.</strong> Claude Code is the assistant that runs the pipeline. It reads the rules in the folder and does the steps for you.</li>
+        <li><strong>Pick a short project name.</strong> Lowercase letters, digits and hyphens only. <code>my-bistro</code> is good. <code>Linden Street Bistro</code> is not.</li>
+      </ul>
+      <p>This page follows the worked example in <code>projects/bistro/</code>: Linden Street Bistro, a made-up restaurant whose floor, kitchen and app all use everyday words in their own way. That folder already holds every step, finished. Here you start the same restaurant again as <code>my-bistro</code>, and at each stop you can open <code>projects/bistro/</code> to see what the result should look like. For your own product, swap in its name.</p>
+    </div>
+  </section>
+
+  <section class="step" id="s1">
+    <div class="num" aria-hidden="true">1</div>
+    <div class="body">
+      <h2>Create the project</h2>
+      <p>One command makes the project folder. <strong>Run it in the terminal</strong>, from the repository's folder. It copies a blank template and writes in your project name and today's date.</p>
+<pre><code>tools/new-project.sh my-bistro</code></pre>
+      <div class="see">
+        <span class="k">You should see</span>
+        <span><code>Created projects/my-bistro</code>, then a line telling you to fill <code>project.yaml</code>.</span>
+      </div>
+      <div class="alt">
+        <span class="k">No terminal? Do the same by hand.</span>
+        <ol>
+          <li>In the <code>projects</code> folder, make a new folder named <code>my-bistro</code>.</li>
+          <li>Open <code>_templates/project</code>. Copy everything inside it into your new folder: the numbered folders, <code>decisions</code>, <code>README.md</code> and <code>project.yaml</code>.</li>
+          <li>Open <code>project.yaml</code>. Put <code>my-bistro</code> where it says <code>&lt;name&gt;</code>, and today's date where it says <code>&lt;YYYY-MM-DD&gt;</code>.</li>
+        </ol>
+        <span>The result is the same as the command. Nothing else in the workspace cares which way you did it.</span>
+      </div>
+      <p>The new folder has one numbered subfolder per step. They are empty. That is normal: a step is done when its file appears there, and nothing else tracks progress.</p>
+<div class="tree" aria-label="The new project folder"><span class="new">projects/my-bistro/</span>
+  README.md          <span class="dim">cover sheet</span>
+  project.yaml       <span class="dim">← you fill this next</span>
+  00-sources/        <span class="dim">step 00 writes here</span>
+  01-terms/          <span class="dim">empty for now</span>
+  02-delta/
+  03-merge/
+  04-draft/
+  05-glossary/
+  06-ontology/
+  07-streams/        <span class="dim">optional lenses, later</span>
+  08-publish/        <span class="dim">what goes out, and when</span>
+  decisions/         <span class="dim">rulings go here, later</span></div>
+      <p>If the script refuses, the folder already exists. Pick another name. It never overwrites. That is also why this page does not use <code>bistro</code>: the finished example already has that name.</p>
+    </div>
+  </section>
+
+  <section class="step" id="s2">
+    <div class="num" aria-hidden="true">2</div>
+    <div class="body">
+      <h2>Point it at your sources</h2>
+      <p>Open <code>projects/my-bistro/project.yaml</code>. This is the only file that holds anything about your product. Everything else in the workspace is the method and stays the same for every project.</p>
+      <p>Under <code>sources:</code> there is one block per kind of source. Fill the ones you have. Delete the ones you do not have.</p>
+      <div class="table-scroll">
+      <table class="fields">
+        <thead><tr><th>Block</th><th>What to put in</th><th>Where to find it</th></tr></thead>
+        <tbody>
+          <tr><td>drive</td><td>The id of the shared Google Drive folder, and a cutoff date. Everything under that folder, changed on or after the date, gets pulled.</td><td>Open the folder in Drive. The id is the last part of the address bar.</td></tr>
+          <tr><td>linear</td><td>The workspace slug, the team key, and a cutoff date.</td><td>The slug is in the Linear address: <code>linear.app/&lt;slug&gt;</code>. The team key is the prefix on issue numbers, like <code>BIS-123</code>.</td></tr>
+          <tr><td>code</td><td>The git repo on GitHub as <code>owner/repo</code>, a cutoff date for pull requests, and the branch naming pattern. Despite the name, this is git, not code: the pipeline reads pull request titles and branch names only, never the source files. Those names are a stand-in for the words engineers use.</td><td>The repo address. Ask an engineer for the branch pattern, or copy a real branch name.</td></tr>
+          <tr><td>glossary</td><td>Leave <code>path: null</code> if the team has no glossary yet.</td><td>If one exists, put its file in the project folder and set the relative path.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>To see a filled-in file, open <code>projects/bistro/project.yaml</code>: a shared Drive folder of staff documents, a Linear team <code>BIS</code> for the booking app, and a GitHub repo for its code, plus the three people who may rule on meaning.</p>
+      <h3>A tool Claude Code cannot reach</h3>
+      <p>Some tools have no connector, or the team does not allow one. Jira, Confluence and SharePoint are common cases. Keep a block for it anyway, with <code>external: true</code>. The pipeline will not pull it. A person runs a ready-made prompt inside that tool and pastes the result back later. Step 3 shows where that lands.</p>
+<pre><code>  jira:
+    external: true
+    type: issue-tracker      <span class="cm"># issue-tracker, document-store, or code-repository</span>
+    tool: Jira
+    link: https://example.atlassian.net
+    cutoff: 2026-03-01</code></pre>
+      <h3>Two more blocks worth filling now</h3>
+      <ul>
+        <li><strong>people:</strong> the names who may decide what a term means when the sources disagree. One product person and one engineer is a good start.</li>
+        <li><strong>seed_terms:</strong> optional. Five or six words you already know matter to this product. They steer the search toward the product's own words.</li>
+      </ul>
+      <div class="see">
+        <span class="k">Done when</span>
+        <span>Every angle bracket placeholder like <code>&lt;id&gt;</code> is gone, and every source you do not have is deleted.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="s3">
+    <div class="num" aria-hidden="true">3</div>
+    <div class="body">
+      <h2>Pull the sources</h2>
+      <p>This is step 00 of the pipeline. Claude Code does it. You ask, in plain words:</p>
+<pre><code>Run step 00 for my-bistro.</code></pre>
+      <p>Claude Code opens the contract for the step, reads your <code>project.yaml</code>, and copies every item from every source into files. It needs a connection to Linear and to Google Drive, and the GitHub command line tool signed in. If a connection is missing, it does not guess. It writes that source down as not pulled and tells you.</p>
+      <p>This is the only step that goes online to read. (Step 08, at the very end, goes online to send.) It copies. It does not read for meaning. Every step after this reads the copies, which is why re-running a later step is cheap.</p>
+      <div class="see">
+        <span class="k">You should see</span>
+        <span>A folder <code>00-sources/raw/</code> with one subfolder per source and one file per item, plus <code>00-sources/manifest.md</code>, the receipt.</span>
+      </div>
+<div class="tree" aria-label="What step 00 writes"><span class="dim">projects/my-bistro/</span>00-sources/
+  <span class="new">manifest.md</span>              <span class="dim">counts per source, one row per item, what was not pulled</span>
+  <span class="new">raw/</span>
+    <span class="new">drive/</span>                 <span class="dim">one file per document, deck or sheet</span>
+    <span class="new">linear-docs/</span>
+    <span class="new">linear-issues/</span>         <span class="dim">title, description, linked PR names</span>
+    <span class="new">code/</span>                  <span class="dim">PR titles and branch names from git, never source files</span></div>
+      <p>The finished example shows what this looks like: <code>projects/bistro/00-sources/</code> holds three staff documents, seven issues and seven pull requests, with the manifest listing every one. (In the example the sources are made up and every link reads <code>EXAMPLE-not-a-real-link</code>.)</p>
+      <p>An external source such as Jira has no folder here. The manifest lists it under "Inventoried externally", with the name of the prompt file to run inside that tool. That is homework for a person, not a problem.</p>
+    </div>
+  </section>
+
+  <section class="step" id="s4">
+    <div class="num" aria-hidden="true" style="color:var(--stamp)">✓</div>
+    <div class="body">
+      <h2>Check the manifest</h2>
+      <div class="checkpoint">
+        <span class="eyebrow">Human checkpoint</span>
+        <p>Open <code>projects/my-bistro/00-sources/manifest.md</code>. Read the counts at the top and the "Not pulled" section at the bottom. This takes ten minutes and saves a glossary built on a third of the evidence.</p>
+        <ul class="signals">
+          <li><span class="pill good">Fine</span><span>Counts look like the size of the company. A row under "Inventoried externally". Both mean carry on.</span></li>
+          <li><span class="pill warn">Suspicious</span><span>A count that looks low. Three Drive documents from a team with a year of history is a permissions problem, not a small team. Fix access, then ask Claude Code to run step 00 again.</span></li>
+          <li><span class="pill fix">Stop</span><span>Any row under "Not pulled". The row says what is needed: which connection, which id. Fix it and re-run. Do not go on with a source missing.</span></li>
+        </ul>
+        <p>Re-running step 00 is safe. It replaces the raw folder and rewrites the manifest.</p>
+      </div>
+      <p>When the manifest is clean, step 00 is done. Nothing to mark or tick: the file existing is the status.</p>
+    </div>
+  </section>
+
+  <section class="step" id="s5">
+    <div class="num" aria-hidden="true">4</div>
+    <div class="body">
+    <span class="eyebrow">Next step</span>
+    <h2>From here, ask the agent</h2>
+    <p>This is how every step after this one starts. You do not need to remember the order or the file names. The workspace knows its own status from which files exist, and Claude Code reads that. The next step is 01: it reads each raw folder and lists the terms it finds, with a quote for each.</p>
+    <ul class="prompts">
+      <li><span class="q">What is next for my-bistro?</span><span class="w">Claude Code checks which files exist and tells you the next step and why.</span></li>
+      <li><span class="q">tools/status.sh my-bistro</span><span class="w">The same answer, in the terminal, without the agent.</span></li>
+      <li><span class="q">Run step 01 for my-bistro.</span><span class="w">Starts the term inventory, one file per source.</span></li>
+      <li><span class="q">Which sources were not pulled, and what do you need?</span><span class="w">Use this when the manifest has a "Not pulled" row.</span></li>
+      <li><span class="q">Run step 00 again for my-bistro.</span><span class="w">After you fixed access or edited project.yaml.</span></li>
+      <li><span class="q">Explain step 01 in plain words before you run it.</span><span class="w">Every step has a contract. Claude Code can read it to you.</span></li>
+    </ul>
+    <p>Every step ends with a checkpoint like the one above. The agent will not run the next step until you have looked.</p>
+    <p>To see where the road ends, read <code>projects/bistro/README.md</code>. It walks the finished example in order, from the raw sources to the published glossary, the ontology picture and the copies sent out. Run <code>tools/status.sh bistro</code> to see every step done.</p>
+    </div>
+  </section>
+
+  <footer>Full detail lives in the workspace: <code>README.md</code> for the whole run, <code>projects/bistro/</code> for a finished example, and <code>factory/steps/00-sources/CONTEXT.md</code> for this step's contract.</footer>
+</div>
+</body>
+</html>

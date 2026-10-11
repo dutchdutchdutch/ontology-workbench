@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review</title>
+  <!-- The landing page of a review package. Loads ./review-data.js from its own folder and holds
+       no project data. Written by tools/build-review.py; never edited by hand. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060b17; --paper: #0a0f1e; --card: #0d162c; --ink: #e2e8f0; --read: #cbd5e1; --ink-2: #94a3b8; --ink-3: #8b97ab;
+      --line: #1e293b; --line-2: #334155; --accent: #f59e0b; --accent-ink: #0b0f1a;
+      --c1: #00f5d4; --c2: #c084fc; --c3: #ff9f1c; --c4: #ff4d6d;
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 48px 24px 64px; }
+    .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    h1 { margin: 8px 0 10px; font-size: 34px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    h1 em { font-style: normal; color: var(--accent); }
+    .lead { margin: 0; font-size: 17px; line-height: 1.6; color: var(--read); max-width: 62ch; }
+    .status { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 36px; }
+    .status span { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 11px; }
+    .status span.draft { color: var(--accent); border-color: rgba(245,158,11,.5); }
+
+    /* Four doors, in the order a newcomer reads them: the words, how they connect, where value
+       moves, and how the work runs. Each carries its own colour on the top edge, nothing more. */
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    a.card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; background: var(--card); border: 1px solid var(--line-2); border-top: 3px solid var(--c); border-radius: 14px; padding: 22px 24px 20px; transition: border-color .2s, box-shadow .2s, transform .2s; }
+    a.card:hover { border-color: var(--ink-3); border-top-color: var(--c); box-shadow: 0 12px 32px rgba(0,0,0,.45); transform: translateY(-2px); }
+    a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .card .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--c); font-weight: 600; }
+    .card h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+    .card p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--read); }
+    .card .stats { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+    .card .stats .badge { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-left: 6px; }
+    .card .go { font-weight: 700; font-size: 14px; color: var(--ink); }
+    .card:hover .go { color: var(--accent); }
+
+    footer { margin-top: 32px; font-size: 12.5px; color: var(--ink-3); line-height: 1.5; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+      .wrap { padding-top: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="kicker" id="kicker">review package</div>
+    <h1 id="title">Vocabulary, for review</h1>
+    <p class="lead" id="lead"></p>
+    <div class="status" id="status"></div>
+    <div class="grid" id="grid"></div>
+    <footer id="foot"></footer>
+  </div>
+
+  <script src="./review-data.js"></script>
+  <script>
+    const r = (typeof reviewData !== 'undefined') ? reviewData : { meta: {}, items: [] };
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const m = r.meta;
+    document.title = `${m.display} vocabulary, for review`;
+    document.getElementById('kicker').textContent = `${m.display} · review package`;
+    document.getElementById('title').innerHTML = `${esc(m.display)} vocabulary, <em>for review</em>`;
+    document.getElementById('lead').textContent = 'A first look, for leadership: the words we use for the business, how they connect, where value moves, and how the work runs. Pick a view.';
+    document.getElementById('status').innerHTML = [
+      `<span class="draft">Draft for leadership review</span>`,
+      `<span>Glossary version ${esc(String(m.publishedFrom).replace(/^v/, ''))}</span>`,
+      `<span>${esc(m.built)}</span>`,
+    ].join('');
+    const colours = ['--c1', '--c2', '--c3', '--c4'];
+    document.getElementById('grid').innerHTML = r.items.map((it, i) => `
+      <a class="card" href="${esc(it.href)}" style="--c: var(${colours[i % 4]})">
+        <span class="n">${String(i + 1).padStart(2, '0')}</span>
+        <h2>${esc(it.title)}</h2>
+        <p>${esc(it.what)}</p>
+        <div class="stats">${esc(it.stats)}${it.draft ? `<span class="badge">${esc(it.draft)}</span>` : ''}</div>
+        <span class="go">Open →</span>
+      </a>`).join('');
+    document.getElementById('foot').textContent = `Draft. Corrections to ${m.contact}.`;
+  </script>
+</body>
+</html>

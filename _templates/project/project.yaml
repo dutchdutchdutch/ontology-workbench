@@ -1,0 +1,107 @@
+# One project, one file. Every value specific to this product lives here and nowhere else.
+# The factory reads this; it never hard-codes any of it.
+
+name: <name>                    # short, lowercase, hyphens. The folder name.
+display_name: <Display Name>
+started: <YYYY-MM-DD>
+
+sources:                        # remove any source the project does not have
+  drive:
+    root_folder_id: <id>        # the shared drive or folder. Step 00 pulls everything under it.
+    cutoff: <YYYY-MM-DD>        # documents modified on or after this date
+  linear:
+    workspace: <slug>           # https://linear.app/<slug>
+    team_key: <KEY>             # the issue prefix: KEY-123
+    cutoff: <YYYY-MM-DD>        # issues created or updated on or after this date
+  code:                         # git, not code: step 00 pulls PR titles and branch names, never source files
+    github_repo: <owner>/<repo>
+    pr_cutoff: <YYYY-MM-DD>     # PRs opened on or after this date
+    branch_pattern: "<name>/<key>-<issue>-<slug>"   # how branches are named, for step 01
+  glossary:
+    path: null                  # an existing glossary to diff against, relative to this folder.
+                                # Set to 05-glossary/glossary.md once one is published.
+  # A source the pipeline cannot reach. Step 00 does not pull it. A human runs the prompt named
+  # by `type` inside the tool and pastes the table into 01-terms/inventory-<key>.md. The key is
+  # the source name; add it to authority_order if it is to rank. Remove this block if unused.
+  <key>:
+    external: true
+    type: document-store        # a file in factory/steps/01-terms/prompts/: issue-tracker, document-store, code-repository
+    tool: <Confluence, Jira, SharePoint>
+    link: <url>
+    cutoff: <YYYY-MM-DD>
+
+seed_terms: []                  # optional: five or six terms you already know. Fills <seed terms> in the prompts.
+
+authority_order: [linear-docs, drive, linear-issues, code]   # for the canonical-name rule
+
+targets:
+  draft_entry_cap: 100
+  # The core set starts small and grows round over round: about 30 in rounds 1 and 2, 35 to 45 by
+  # rounds 3 and 4, about 50 by rounds 5 and 6. `warn_above` is a warning, not a cap: past it the
+  # core stops being small enough to hold in the head, so step 05 says so and names the terms that
+  # may belong in the glossary instead. The warning may be ignored. Membership is decided by the
+  # dependency test alone. See factory/rules/core-selection.md.
+  core_terms: { round: 1, expect: 30, warn_above: 55 }
+
+people:                         # who may rule, and the Owner values
+  - { name: <name>, discipline: product }
+  - { name: <name>, discipline: engineering }
+
+disciplines: [product, engineering, design]   # the controlled vocabulary for the discipline column
+
+# The groups the glossary aligns: who uses the product, and who runs it. Step 01 keeps a term
+# when two or more of them need to share its meaning, and lists the rest under "Out of scope" in
+# the inventory. Not the same as `disciplines`: that is who wrote the document a row came from.
+audiences: [<end user>, <the person who runs it>, <the expert who sets it up>]
+
+# This project's own relation verbs, for the ontology picture in step 06. Leave empty until the
+# first render: `tools/render-ontology.py <name> --core` prints every verb it read as producing,
+# and the ones that are wrong are the ones to add here.
+#
+# The generic verbs live in tools/render-ontology.py and are explained in
+# factory/rules/entry-format.md. Generic means the word means the same in any domain. A verb that
+# only makes sense inside this product belongs here, and it wins where the two disagree.
+#
+# consumes   the object flows into the subject, so the picture draws that edge against the
+#            sentence. A passive verb with an agent is the common case.
+# structure  containment, kind or requirement. Nothing moves.
+# produces   the default. List a verb here only to overrule a generic classification.
+#
+# Each entry is a stem, matched at the start of the verb phrase or as a whole word inside it,
+# with any wikilink removed first: "is a with no" matches "is a [[Party]] with no".
+# How step 06 places the category frames, left to right. `reading` keeps the glossary's category
+# order. `shortest` moves whole frames to make the lines shortest in total, starting from the
+# reading order. `pin_left: [..]` fixes named frames at the left first, and the search places the
+# rest. `frame_order: [..]` names an order by hand and wins over both: one item per column, and
+# "A + B" stacks frame B under frame A.
+ontology:
+  layout: reading
+  # show_structure: true    # start the picture with structure lines on; consuming and producing
+                            # are always on at the start, structure is off unless this says so
+
+verbs:
+  consumes: []
+  structure: []
+  produces: []
+
+# This project's own relation kinds, used only when none of the 21 in
+# factory/rules/relation-kinds.md fits a line. Each needs an inverse and a flow (produces,
+# consumes or structure). A kind on a line decides its flow; `verbs:` above is the fallback for a
+# line with no kind. Leave it out until a line needs one.
+# relation_kinds:
+#   represents: { inverse: represented_by, flow: produces }   # X acts for Y
+
+# Where step 08 sends the vocabulary, once the glossary is at `trial` or `adopted`. One
+# destination per line, `<kind> <where>`: `drive <folder id>`, `repo <owner>/<repo>`,
+# `folder <path>`. Every destination gets the same `folder`, holding the same files. The folder
+# name is this project's choice; there is no default.
+# `files` names: glossary, core-terms, about-core-terms, taxonomy, backlog, ontology,
+# ontology-machine (the file for agents), streams, processes.
+# Remove the block until there is somewhere to send to.
+publish:
+  folder: <folder name>
+  contact: <name>
+  files: [glossary, core-terms, about-core-terms, taxonomy, ontology]
+  destinations:
+    - drive <id>
+    - repo <owner>/<repo>

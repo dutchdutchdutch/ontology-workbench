@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Processes</title>
+  <!-- The step 07 process page. Loads ./process-data.js from its own folder and holds no project
+       data. A process is lanes (who) by steps (order); boxes are activities; a path is the same
+       process at one level of trouble. Every term a box names is shown with the glossary's own
+       definition. If the page and the glossary disagree, the glossary wins. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* The stream page's room: navy canvas, navy cards, slate borders, neon lane colours, gold
+         for "the thing you picked". People switch between the two pages; the furniture matches. */
+      /* ink: titles. read: paragraphs, 11.8:1 on the panel. ink-2: short secondary lines, 7.3:1.
+         ink-3: the smallest labels, 6.5:1 and never below 11px. The guideline floor is 4.5:1. */
+      --bg: #060b17; --paper: #0a0f1e; --card: #0d162c; --ink: #e2e8f0; --read: #cbd5e1; --ink-2: #94a3b8; --ink-3: #8b97ab;
+      --line: #1e293b; --line-2: #334155;
+      --people: var(--card); --people-edge: #94a3b8;
+      --ai: var(--card); --ai-edge: #00f5d4;
+      --team: var(--card); --team-edge: #ff4d6d;
+      --accent: #f59e0b; --accent-ink: #0b0f1a;
+      --dark: #e2e8f0; --dark-ink: #060b17;
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+      --side-w: 440px; --side-min: 340px;
+      --read-size: 15px;
+      --col-w: 230px; --col-gap: 36px; --box-h: 150px; --box-h-compact: 84px; --box-gap: 16px; --lane-pad: 32px;
+      --lane-label-w: 232px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 14px; }
+    /* The panel anchors to the chart, not to the window: the first column is as wide as the chart,
+       the panel follows it, and whatever is left stays empty on the right. */
+    body { display: grid; grid-template-rows: auto auto 1fr auto; grid-template-columns: minmax(0, max-content) minmax(var(--side-min), var(--side-w)) 1fr; height: 100vh; }
+    header { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 24px; padding: 18px 24px 10px; background: var(--bg); }
+    header .titles { flex: 1; min-width: 0; }
+    header .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    header h1 { margin: 2px 0 4px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    header .oneline { margin: 0; color: var(--ink-2); font-size: 15px; }
+    /* The cadence lives in the title: the phrase that says it is set in the accent colour. */
+    header h1 .cad { color: var(--accent); font-style: normal; }
+
+    /* One toolbar holds every control. The step controls live in the column headers instead. */
+    .toolbar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 8px 24px 10px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg); }
+    .toolbar .grp { display: flex; align-items: center; gap: 6px; }
+    .toolbar .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-right: 2px; }
+    .toolbar select { font: inherit; font-size: 13px; padding: 6px 28px 6px 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); color: var(--ink); max-width: 320px; }
+    .toolbar button { font: inherit; font-weight: 600; font-size: 13px; padding: 7px 12px; min-height: 32px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; }
+    .toolbar button:hover { border-color: var(--ink-3); }
+    .toolbar button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .toolbar button:disabled { opacity: .45; cursor: default; }
+    .toolbar .sep { width: 1px; height: 22px; background: var(--line-2); margin: 0 4px; }
+    .toolbar .status { font-size: 12.5px; color: var(--ink-2); margin-left: auto; }
+    .pathchips { display: flex; gap: 4px; }
+    .pathchips button { border-radius: 999px; padding: 5px 12px; }
+    .pathchips button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .pathchips button .sh { font-family: var(--font-mono); font-size: 10.5px; opacity: .7; margin-left: 6px; }
+
+    /* main holds a scroller and the zoom controls. Zoom uses CSS zoom on the chart, not a
+       transform, so the chart's layout size changes with it: scrolling, the panel anchored to
+       the chart's right edge, and scrolling to the lit step all keep working. */
+    main { position: relative; overflow: hidden; max-width: 100%; }
+    .scroller { height: 100%; overflow: auto; cursor: default; }
+    .scroller.panning { cursor: grabbing; user-select: none; }
+    #canvas { position: relative; margin: 16px 28px 28px; }
+    .zoom-controls { position: absolute; right: 18px; bottom: 18px; z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 10px; border: 1px solid var(--line-2); background: rgba(10,15,30,.92); backdrop-filter: blur(8px); }
+    .zoom-controls button { width: 34px; height: 34px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); font: 700 15px/1 var(--font-mono); cursor: pointer; }
+    .zoom-controls button:hover { border-color: var(--ink-3); }
+    .zoom-controls .lvl { font: 600 10.5px/1 var(--font-mono); color: var(--ink-3); text-align: center; padding: 2px 0 1px; }
+    /* A column header is also the step's control: the number walks to the step, the eye hides it. */
+    .colhead { position: absolute; z-index: 2; top: 0; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; height: 36px; width: var(--col-w); }
+    .colhead .num { display: inline-flex; width: 26px; height: 26px; border-radius: 50%; background: var(--card); color: var(--ink); font-size: 12px; font-weight: 700; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid var(--line-2); flex: none; }
+    .colhead .num:hover { border-color: var(--accent); }
+    .colhead.cur .num { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .colhead .nm { flex: 1; min-width: 0; cursor: pointer; }
+    .colhead .eye { font-size: 12px; background: none; border: 0; cursor: pointer; color: var(--ink-3); padding: 2px 4px; border-radius: 6px; opacity: 0; transition: opacity .15s; }
+    .colhead:hover .eye, .colhead.hidden-step .eye { opacity: 1; }
+    .colhead .eye:hover { color: var(--ink); background: var(--line); }
+    .colhead.hidden-step { opacity: .45; }
+    .colhead.hidden-step .nm { text-decoration: line-through; }
+    .lane { position: absolute; left: 0; right: 0; border-radius: 18px; z-index: 0; }
+    /* Each lane is its own room: a clear wash of the lane colour, the edge a shade brighter. */
+    .lane { background: rgba(148,163,184,.07); border-left: 4px solid var(--line-2); }
+    .lane[data-kind="people"] { border-left-color: var(--people-edge); background: rgba(148,163,184,.09); }
+    .lane[data-kind="ai"] { border-left-color: var(--ai-edge); background: rgba(0,245,212,.075); }
+    .lane[data-kind="team"] { border-left-color: var(--team-edge); background: rgba(255,77,109,.085); }
+    .lane .lab { position: absolute; left: 24px; top: 28px; width: 160px; }
+    .lane .lab .ic { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--card); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 18px; color: var(--ink-2); }
+    .lane .lab .name { font-weight: 800; font-size: 17px; line-height: 1.15; }
+    .lane .lab .who { font-size: 12px; color: var(--ink-2); margin-top: 6px; line-height: 1.35; }
+    /* The lane band says which row a card is in. The card itself stays quiet: a slate border, a
+       faint tint of the lane colour in its surface, nothing that competes with the title. */
+    .box { position: absolute; z-index: 2; width: var(--col-w); height: var(--box-h); border-radius: 12px; border: 1px solid var(--line-2); background: var(--card); padding: 16px 16px 14px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; }
+    .box[data-kind="people"] { background: linear-gradient(rgba(148,163,184,.05), rgba(148,163,184,.05)) var(--card); }
+    .box[data-kind="ai"] { background: linear-gradient(rgba(0,245,212,.07), rgba(0,245,212,.07)) var(--card); }
+    .box[data-kind="team"] { background: linear-gradient(rgba(255,77,109,.08), rgba(255,77,109,.08)) var(--card); }
+    .box:hover { box-shadow: 0 8px 24px rgba(0,0,0,.45); border-color: var(--ink-3); }
+    .box.selected { outline: 2.5px solid var(--accent); outline-offset: 2px; }
+    .box .t { font-weight: 700; font-size: 14.5px; line-height: 1.25; margin-bottom: 6px; }
+    .box .c { font-size: 12.5px; color: var(--ink-2); line-height: 1.4; }
+    /* Titles only is the default: the card text moves to the sidebar, and the picture declutters. */
+    body.compact .box .c { display: none; }
+    body.compact .box .t { margin-bottom: 0; }
+    body.compact .box .hm { margin-bottom: 6px; }
+    .hm, .side .hm, footer .hm, .box .hm { color: var(--accent-ink); background: var(--accent); }
+    .box .tag { display: inline-block; align-self: flex-start; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 8px; margin-bottom: 6px; }
+    .box .hm { display: inline-block; align-self: flex-start; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 3px 9px; margin-bottom: 8px; }
+    /* In a walk: visited boxes stay as they are, the current step gets an outline and a glow, the
+       boxes the current step reaches fade in as the line arrives, and the rest wait, dimmed. */
+    .box { transition: opacity .55s ease, box-shadow .45s ease, filter .55s ease; }
+    .box.dim { opacity: .14; }
+    .box.reach { opacity: 1; transition-delay: .75s; }
+    .box.now { box-shadow: 0 0 0 2px var(--accent), 0 0 28px rgba(245,158,11,.28); }
+    .box.outpath { opacity: .25; filter: saturate(.2); }
+    .box.off { display: none; }
+    svg#edges { position: absolute; left: 0; top: 0; z-index: 1; pointer-events: none; overflow: visible; }
+    svg#edges path { fill: none; stroke: #cbd5e1; stroke-width: 2; transition: opacity .55s ease; }
+    svg#edges path.dashed { stroke: #64748b; stroke-dasharray: 5 5; stroke-width: 1.6; }
+    svg#edges path.dim { opacity: .08; }
+    /* Bridges sit above the boxes: a path's spine must stay visible across the boxes it skips. */
+    svg#bridges { position: absolute; left: 0; top: 0; z-index: 4; pointer-events: none; overflow: visible; }
+    svg#bridges path { fill: none; stroke: var(--accent); stroke-width: 2.5; transition: opacity .55s ease; }
+    svg#bridges path.dim { opacity: .08; }
+    /* A line reaching out: drawn from its start over a second, the arrowhead arriving last. */
+    svg#edges path.drawing, svg#bridges path.drawing { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1s cubic-bezier(.4, 0, .2, 1) forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    .elabel { position: absolute; z-index: 3; transform: translate(-50%, -50%); font-size: 11px; font-weight: 600; color: var(--ink-2); background: var(--card); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px; white-space: nowrap; transition: opacity .5s ease; }
+    .elabel.dim { opacity: .08; }
+    .elabel.reach { transition-delay: .6s; }
+
+    aside.side { border-left: 1px solid var(--line); overflow: auto; background: var(--paper); font-size: var(--read-size); line-height: 1.6; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; color-scheme: dark; }
+    /* The walk controls sit with the reading, so pausing is one reach away from the text. */
+    .walk { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 6px; padding: 12px 26px; background: var(--paper); border-bottom: 1px solid var(--line); }
+    .walk button { font: inherit; font-weight: 600; font-size: 13px; padding: 7px 12px; min-height: 32px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; line-height: 1.2; }
+    .walk button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); min-width: 64px; }
+    .walk button:disabled { opacity: .45; cursor: default; }
+    .walk .status { font-size: 12.5px; color: var(--ink-3); margin-left: auto; text-align: right; line-height: 1.3; }
+    #side { padding: 22px 26px 28px; }
+    #side > * { max-width: 60ch; }
+    .side h3 { margin: 26px 0 8px; padding-top: 12px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    .side .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    .side h2 { margin: 6px 0 10px; font-size: 22px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; }
+    .side .card { font-size: 16px; color: var(--ink); margin: 0 0 14px; font-weight: 500; line-height: 1.5; }
+    .side .warn { color: var(--accent); }
+    .side .detail p { margin: 0 0 12px; line-height: 1.65; font-size: var(--read-size); color: var(--read); }
+    .side .lanechip { display: inline-block; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 10px; border: 1px solid var(--people-edge); color: var(--people-edge); background: transparent; margin: 0 6px 8px 0; }
+    .side .lanechip.ai { border-color: var(--ai-edge); color: var(--ai-edge); }
+    .side .lanechip.team { border-color: var(--team-edge); color: var(--team-edge); }
+    .side .tag { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 9px; margin: 0 6px 8px 0; }
+    .side .hm { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 3px 9px; }
+    .side .term { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(245,158,11,.4); cursor: pointer; }
+    .side .termlist { list-style: none; padding: 0; margin: 0; }
+    .side .termlist li { padding: 12px 0; border-top: 1px solid var(--line); }
+    .side .termlist li:first-child { border-top: 0; padding-top: 4px; }
+    .side .termlist .tn { font-weight: 700; font-size: 15px; cursor: pointer; }
+    .side .termlist .tn .cat { font-weight: 500; color: var(--ink-3); font-size: 12px; margin-left: 8px; font-family: var(--font-mono); letter-spacing: .02em; }
+    .side .termlist .td { font-size: 14px; color: var(--read); line-height: 1.55; margin-top: 4px; }
+    .side .back { font-size: 13px; font-weight: 600; color: var(--accent); cursor: pointer; background: none; border: 0; padding: 0; font-family: inherit; margin-bottom: 14px; }
+    .side .boxlist { list-style: none; padding: 0; margin: 0 0 14px; }
+    .side .boxlist li { padding: 11px 0; border-top: 1px solid var(--line); cursor: pointer; }
+    .side .boxlist li:first-child { border-top: 0; padding-top: 4px; }
+    .side .boxlist li:hover .bt { color: var(--accent); }
+    .side .boxlist li.outpath { opacity: .4; }
+    .side .boxlist .bt { font-weight: 700; font-size: 15px; }
+    .side .boxlist .bc { font-size: 13.5px; color: var(--ink-2); margin-top: 2px; line-height: 1.5; }
+    /* A step is a stack of numbered cards, each carrying its lane's colour on the left edge. */
+    .side .stepblock { margin: 0 0 14px; padding: 14px 16px 10px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--card); position: relative; }
+    .side .stepblock.ai { background: linear-gradient(rgba(0,245,212,.045), rgba(0,245,212,.045)) var(--card); }
+    .side .stepblock.team { background: linear-gradient(rgba(255,77,109,.05), rgba(255,77,109,.05)) var(--card); }
+    .side .stepblock .n { position: absolute; top: 12px; right: 14px; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+    .side .stepblock .bt { font-weight: 700; font-size: 17px; margin: 8px 0 4px; cursor: pointer; line-height: 1.25; }
+    .side .stepblock .bt:hover { color: var(--accent); }
+    .side .stepblock .card { margin: 0 0 8px; font-size: 15px; }
+    .side .foot { margin-top: 26px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); line-height: 1.5; }
+    .side .warn { font-size: 12.5px; color: var(--accent); margin-top: 8px; }
+    .side .meta { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+    .side .meta b { color: var(--ink); }
+    .side .share { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-left: 6px; }
+
+    footer { grid-column: 1 / -1; border-top: 1px solid var(--line); padding: 10px 24px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; font-size: 12.5px; color: var(--ink-2); background: var(--bg); }
+    footer .sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-2); background: var(--card); vertical-align: -2px; margin-right: 6px; box-shadow: inset 3px 0 0 var(--people-edge); }
+    footer .sw.ai { box-shadow: inset 3px 0 0 var(--ai-edge); }
+    footer .sw.team { box-shadow: inset 3px 0 0 var(--team-edge); }
+    footer .ln { display: inline-block; width: 26px; border-top: 2px solid #cbd5e1; vertical-align: 3px; margin-right: 6px; }
+    footer .ln.dashed { border-top: 2px dashed #64748b; }
+    footer .hm { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 999px; padding: 3px 9px; margin-right: 6px; }
+    footer .src { margin-left: auto; color: var(--ink-3); font-size: 11.5px; }
+
+    @media (max-width: 1000px) {
+      body { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto auto; }
+      main { max-width: none; }
+      aside.side { border-left: 0; border-top: 1px solid var(--line); max-height: 45vh; }
+      header { flex-wrap: wrap; }
+      .toolbar .status { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="titles">
+      <div class="kicker" id="kicker">process</div>
+      <h1 id="title">Processes</h1>
+      <p class="oneline" id="oneline"></p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="grp" id="procGrp"><span class="lbl">process</span><select id="processSelect" onchange="setProcess(this.value)"></select></div>
+    <div class="grp" id="pathGrp"><span class="lbl">path</span><div class="pathchips" id="pathChips"></div></div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lbl">boxes</span><button id="btnCompact" onclick="setCompact(!compact)">Titles only</button></div>
+    <span class="sep"></span>
+    <button class="reset" onclick="resetView()" title="Back to the default view: whole process, every step, nothing selected">Reset</button>
+  </div>
+
+  <main>
+    <div class="scroller" id="scroller"><div id="canvas"><svg id="edges"></svg><svg id="bridges"></svg></div></div>
+    <div class="zoom-controls">
+      <button onclick="adjustZoom(1.15)" title="Zoom in">+</button>
+      <button onclick="adjustZoom(0.85)" title="Zoom out">−</button>
+      <button onclick="resetZoom()" title="Reset zoom">⟲</button>
+      <div class="lvl" id="zoomLvl">100%</div>
+    </div>
+  </main>
+
+  <aside class="side">
+    <div class="walk">
+      <button class="primary" id="btnPlay" onclick="togglePlay()">Play</button>
+      <button id="btnPrev" onclick="stepTo(prevStep())" title="Previous step">‹</button>
+      <button id="btnNext" onclick="stepTo(nextStep())" title="Next step">›</button>
+      <span class="status" id="playStatus">Press Play, or click a step number.</span>
+    </div>
+    <div id="side"></div>
+  </aside>
+
+  <footer>
+    <span><span class="sw"></span>Person or partner</span>
+    <span><span class="sw ai"></span>AI agent</span>
+    <span><span class="sw team"></span>Team member</span>
+    <span><span class="hm">Human moment</span>Protected by design, never handed to AI</span>
+    <span><span class="ln"></span>Main flow</span>
+    <span><span class="ln dashed"></span>Only when needed</span>
+    <span class="src" id="src"></span>
+  </footer>
+
+  <script src="./process-data.js"></script>
+  <script>
+    const css = getComputedStyle(document.documentElement);
+    const px = v => parseFloat(css.getPropertyValue(v));
+    const COL_W = px('--col-w'), COL_GAP = px('--col-gap'), BOX_GAP = px('--box-gap');
+    let compact = true;
+    const boxH = () => px(compact ? '--box-h-compact' : '--box-h');
+    // Spacing on an 8-point rhythm: lane inset 32, lane gap 24, box gap 16, header 64.
+    const LANE_PAD = px('--lane-pad'), LABEL_W = px('--lane-label-w'), HEAD_H = 64, LANE_GAP = 24;
+
+    const data = (typeof processData !== 'undefined') ? processData : { meta: {}, processes: {}, terms: {} };
+    const names = Object.keys(data.processes);
+    let proc = null, geo = {}, selected = null, cur = 0, playing = false, timer = null;
+    let hiddenSteps = new Set(), path = null;   // path: the selected path object, or null for the whole process
+
+    function setCompact(on) {
+      compact = on;
+      document.body.classList.toggle('compact', compact);
+      document.getElementById('btnCompact').textContent = compact ? 'Titles only' : 'With card text';
+      if (proc) layout();
+    }
+
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const laneOf = id => proc.lanes.find(l => l.id === id) || { kind: 'people', label: id };
+    const laneIcon = k => ({ people: '⌂', ai: '✦', team: '☺' }[k] || '•');
+    const inPath = b => !path || path.boxes.includes(b.id);
+    const byId = () => Object.fromEntries(proc.boxes.map(b => [b.id, b]));
+
+    function init() {
+      const sel = document.getElementById('processSelect');
+      sel.innerHTML = names.map(n => `<option value="${esc(n)}">${esc(data.processes[n].title)}</option>`).join('');
+      document.getElementById('procGrp').style.display = names.length > 1 ? '' : 'none';
+      document.getElementById('src').textContent = data.meta.definitionsFrom ? `Definitions from ${data.meta.definitionsFrom}` : '';
+      if (!names.length) {
+        document.getElementById('side').innerHTML = '<div class="eyebrow">nothing to draw</div><p>No process file was rendered. Write one in 07-streams/ and run tools/render-processes.py.</p>';
+        return;
+      }
+      setCompact(true);
+      setProcess(names[0]);
+      // #step-3 opens the walk at that step; #path-happy selects a path. Both may be given.
+      const ps = /path-([a-z0-9-]+)/i.exec(location.hash);
+      if (ps) setPath(ps[1]);
+      const st = /step-(\d+)/.exec(location.hash);
+      if (st) stepTo(parseInt(st[1], 10));
+    }
+
+    function setProcess(name) {
+      stopWalk(true);
+      proc = data.processes[name];
+      selected = null; hiddenSteps = new Set(); path = null;
+      document.getElementById('kicker').textContent = `${data.meta.project || ''} · process`;
+      // Highlight the cadence phrase in the title ("Every week", "Each morning", "weekly"). When
+      // the title does not say it, the kicker does, so the fact is stated once either way.
+      const h1 = document.getElementById('title');
+      const root = (proc.cadence || '').replace(/ly$/, '');
+      const re = root ? new RegExp(`\\b(every|each)\\s+${root}\\w*|\\b${proc.cadence}\\b`, 'i') : null;
+      const m = re && re.exec(proc.title);
+      h1.innerHTML = m ? esc(proc.title.slice(0, m.index)) + `<em class="cad">${esc(m[0])}</em>` + esc(proc.title.slice(m.index + m[0].length)) : esc(proc.title);
+      const home = (typeof reviewHome !== 'undefined') ? `<a href="${esc(reviewHome.href)}" style="color:var(--accent);text-decoration:none">\u2190 ${esc(reviewHome.label)}</a> · ` : '';
+      document.getElementById('kicker').innerHTML = home + esc(`${home ? '' : (data.meta.project || '') + ' · '}process${proc.cadence && !m ? ' · ' + proc.cadence : ''}`);
+      document.getElementById('oneline').textContent = proc.oneLine;
+      renderPathChips();
+      layout();
+      showOverview();
+    }
+
+    // Paths: the same process at rising levels of trouble. Picking one dims what is outside it.
+    function renderPathChips() {
+      const grp = document.getElementById('pathGrp');
+      const paths = proc.paths || [];
+      grp.style.display = paths.length ? '' : 'none';
+      document.getElementById('pathChips').innerHTML =
+        `<button class="${path ? '' : 'on'}" onclick="setPath(null)">Whole process</button>` +
+        paths.map(p => `<button class="${path && path.id === p.id ? 'on' : ''}" onclick="setPath('${esc(p.id)}')">${esc(p.label)}${p.share ? `<span class="sh">${esc(p.share)}</span>` : ''}</button>`).join('');
+    }
+    function setPath(id) {
+      path = (proc.paths || []).find(p => p.id === id) || null;
+      renderPathChips();
+      if (cur && !stepsInPath().includes(cur)) cur = 0;
+      applyFilters();
+      if (cur) stepTo(cur); else if (path) showPath(); else showOverview();
+    }
+    // The steps a walk visits: those with at least one box in the path, not hidden.
+    function stepsInPath() {
+      const s = new Set(proc.boxes.filter(inPath).map(b => b.step));
+      return proc.steps.map((_, i) => i + 1).filter(n => s.has(n) && !hiddenSteps.has(n));
+    }
+    function nextStep() { const s = stepsInPath(); return s.find(n => n > cur) || 0; }
+    function prevStep() { const s = stepsInPath().filter(n => n < cur); return s.length ? s[s.length - 1] : 0; }
+
+    function layout() {
+      const canvas = document.getElementById('canvas');
+      canvas.querySelectorAll('.lane, .box, .colhead, .elabel').forEach(n => n.remove());
+      geo = {};
+      const stacks = {};
+      proc.boxes.forEach(b => { const k = `${b.step}|${b.lane}`; (stacks[k] = stacks[k] || []).push(b); });
+      const laneH = {};
+      proc.lanes.forEach(l => {
+        const max = Math.max(1, ...proc.steps.map((_, i) => (stacks[`${i + 1}|${l.id}`] || []).length));
+        // Never shorter than the lane's own label (icon, name, two lines of who).
+        laneH[l.id] = Math.max(152, LANE_PAD * 2 + max * boxH() + (max - 1) * BOX_GAP);
+      });
+      let y = HEAD_H;
+      const laneY = {};
+      proc.lanes.forEach(l => { laneY[l.id] = y; y += laneH[l.id] + LANE_GAP; });
+      const totalH = y, totalW = LABEL_W + proc.steps.length * (COL_W + COL_GAP);
+      canvas.style.width = totalW + 'px'; canvas.style.height = totalH + 'px';
+
+      proc.steps.forEach((s, i) => {
+        const n = i + 1, h = document.createElement('div');
+        h.className = 'colhead'; h.dataset.step = n; h.style.left = (LABEL_W + i * (COL_W + COL_GAP)) + 'px';
+        h.innerHTML = `<span class="num" title="Walk from step ${n}" onclick="stepTo(${n})">${n}</span><span class="nm" onclick="stepTo(${n})">${esc(s)}</span><button class="eye" title="Hide or show this step" onclick="toggleStep(${n})">👁</button>`;
+        canvas.appendChild(h);
+      });
+      proc.lanes.forEach(l => {
+        const d = document.createElement('div');
+        d.className = 'lane'; d.dataset.kind = l.kind; d.dataset.lane = l.id;
+        d.style.top = laneY[l.id] + 'px'; d.style.height = laneH[l.id] + 'px';
+        d.innerHTML = `<div class="lab"><div class="ic">${laneIcon(l.kind)}</div><div class="name">${esc(l.label)}</div><div class="who">${esc(l.who || '')}</div></div>`;
+        canvas.appendChild(d);
+      });
+      let d_h = boxH();
+      proc.boxes.forEach(b => {
+        const k = `${b.step}|${b.lane}`, idx = stacks[k].indexOf(b);
+        const x = LABEL_W + (b.step - 1) * (COL_W + COL_GAP);
+        const stackH = stacks[k].length * boxH() + (stacks[k].length - 1) * BOX_GAP;
+        const yy = laneY[b.lane] + (laneH[b.lane] - stackH) / 2 + idx * (boxH() + BOX_GAP);
+        geo[b.id] = { x, y: yy, w: COL_W, h: boxH() };
+        d_h = boxH();
+        const d = document.createElement('div');
+        d.className = 'box'; d.dataset.kind = laneOf(b.lane).kind; d.dataset.id = b.id; d.dataset.step = b.step; d.dataset.lane = b.lane;
+        d.style.left = x + 'px'; d.style.top = yy + 'px'; d.style.height = d_h + 'px';
+        d.innerHTML = `${b.tag ? `<span class="tag">${esc(b.tag)}</span>` : ''}${b.humanMoment ? '<span class="hm">Human moment</span>' : ''}<div class="t">${esc(b.title)}</div><div class="c">${esc(b.card)}</div>`;
+        d.onclick = () => selectBox(b.id);
+        canvas.appendChild(d);
+      });
+      drawEdges(totalW, totalH);
+      applyFilters();
+    }
+
+    function routeFor(a, b) {
+      if (b.x > a.x + 1) {
+        const x1 = a.x + a.w, y1 = a.y + a.h / 2, x2 = b.x, y2 = b.y + b.h / 2, xm = x1 + (x2 - x1) / 2;
+        return { d: `M${x1},${y1} H${xm} V${y2} H${x2}`, lx: xm, ly: (y1 + y2) / 2 };
+      }
+      if (b.x < a.x - 1) {
+        const x1 = a.x, y1 = a.y + a.h / 2, x2 = b.x + b.w, y2 = b.y + b.h / 2, xm = x2 + (x1 - x2) / 2;
+        return { d: `M${x1},${y1} H${xm} V${y2} H${x2}`, lx: xm, ly: (y1 + y2) / 2 };
+      }
+      const xc = a.x + a.w / 2;
+      if (b.y > a.y) return { d: `M${xc},${a.y + a.h} V${b.y}`, lx: xc, ly: (a.y + a.h + b.y) / 2 };
+      return { d: `M${xc},${a.y} V${b.y + b.h}`, lx: xc, ly: (a.y + b.y + b.h) / 2 };
+    }
+
+    function drawEdges(w, h) {
+      const svg = document.getElementById('edges');
+      svg.setAttribute('width', w); svg.setAttribute('height', h);
+      const bsvg = document.getElementById('bridges');
+      bsvg.setAttribute('width', w); bsvg.setAttribute('height', h);
+      svg.innerHTML = `<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#cbd5e1"/></marker><marker id="arrowd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker></defs>`;
+      const canvas = document.getElementById('canvas');
+      proc.boxes.forEach(b => {
+        const add = (e, dashed) => {
+          const a = geo[b.id], t = geo[e.to];
+          if (!a || !t) return;
+          const r = routeFor(a, t);
+          const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          p.setAttribute('d', r.d); p.setAttribute('marker-end', dashed ? 'url(#arrowd)' : 'url(#arrow)');
+          p.dataset.from = b.id; p.dataset.to = e.to; if (dashed) p.classList.add('dashed');
+          svg.appendChild(p);
+          p.style.setProperty('--len', p.getTotalLength());
+          p.addEventListener('animationend', () => p.classList.remove('drawing'));
+          if (e.label) {
+            const l = document.createElement('div');
+            l.className = 'elabel'; l.textContent = e.label; l.dataset.from = b.id; l.dataset.to = e.to;
+            l.style.left = r.lx + 'px'; l.style.top = r.ly + 'px';
+            canvas.appendChild(l);
+          }
+        };
+        (b.next || []).forEach(e => add(e, false));
+        (b.whenNeeded || []).forEach(e => add(e, true));
+      });
+    }
+
+    // Three things decide how a box looks: hidden by its step (gone), outside the path (faded
+    // and desaturated), or outside the lit step of a walk (dimmed). Edges follow their ends.
+    function toggleStep(n) { hiddenSteps.has(n) ? hiddenSteps.delete(n) : hiddenSteps.add(n); applyFilters(); }
+    function visible(b) { return !hiddenSteps.has(b.step); }
+
+    // On a path, the main flow may run through boxes the path leaves out: on the happy path a
+    // box can reach the next one through branches that never fire on that path. A
+    // bridge arrow joins the two path boxes directly, so the path reads as one line. It is
+    // derived from `next` and drawn only while a path is chosen; the file states no such edge.
+    function drawBridges() {
+      const svg = document.getElementById('bridges');
+      svg.innerHTML = '<defs><marker id="arrowb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#f59e0b"/></marker></defs>';
+      if (!path) return;
+      const map = byId();
+      const direct = new Set();
+      proc.boxes.forEach(b => (b.next || []).forEach(e => direct.add(b.id + '>' + e.to)));
+      proc.boxes.filter(inPath).forEach(src => {
+        const seen = new Set(), stack = (src.next || []).map(e => e.to);
+        while (stack.length) {
+          const id = stack.pop(), t = map[id];
+          if (!t || seen.has(id)) continue;
+          seen.add(id);
+          if (inPath(t)) {
+            if (!direct.has(src.id + '>' + id) && geo[src.id] && geo[id]) {
+              const r = routeFor(geo[src.id], geo[id]);
+              const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              p.setAttribute('d', r.d); p.setAttribute('marker-end', 'url(#arrowb)');
+              p.dataset.from = src.id; p.dataset.to = id;
+              svg.appendChild(p);
+              p.style.setProperty('--len', p.getTotalLength());
+              p.addEventListener('animationend', () => p.classList.remove('drawing'));
+            }
+          } else {
+            (t.next || []).forEach(e => stack.push(e.to));
+          }
+        }
+      });
+    }
+    let animateEdges = false;   // set by stepTo, so only a step change draws lines out
+    function applyFilters() {
+      const map = byId();
+      drawBridges();
+      // In a walk: `now` is the lit step, `done` everything before it, `reach` what the lit step's
+      // lines arrive at. A box is dimmed only when it is none of these.
+      const now = new Set(), done = new Set(), reach = new Set();
+      if (cur) {
+        proc.boxes.forEach(b => { if (!inPath(b)) return; if (b.step === cur) now.add(b.id); else if (b.step < cur) done.add(b.id); });
+        document.querySelectorAll('#edges path, #bridges path').forEach(p => {
+          const a = map[p.dataset.from], t = map[p.dataset.to];
+          if (a && t && now.has(a.id) && inPath(t) && !now.has(t.id) && !done.has(t.id)) reach.add(t.id);
+        });
+      }
+      const seen = id => now.has(id) || done.has(id) || reach.has(id);
+      document.querySelectorAll('.box').forEach(d => {
+        const b = map[d.dataset.id];
+        d.classList.toggle('off', !visible(b));
+        d.classList.toggle('outpath', !inPath(b));
+        d.classList.toggle('dim', !!cur && inPath(b) && !seen(b.id));
+        d.classList.toggle('reach', !!cur && reach.has(b.id));
+        d.classList.toggle('now', !!cur && now.has(b.id));
+        d.classList.toggle('selected', selected === b.id);
+      });
+      document.querySelectorAll('.colhead').forEach(d => {
+        const n = +d.dataset.step;
+        d.classList.toggle('hidden-step', hiddenSteps.has(n));
+        d.classList.toggle('cur', cur === n);
+      });
+      document.querySelectorAll('#edges path, #bridges path, .elabel').forEach(p => {
+        const a = map[p.dataset.from], t = map[p.dataset.to];
+        const shown = a && t && visible(a) && visible(t);
+        p.style.display = shown ? '' : 'none';
+        const inp = a && t && inPath(a) && inPath(t);
+        // A line is on when both ends are seen, or when it leaves the lit step. Lines from the lit
+        // step draw themselves out; lines between visited boxes simply stay.
+        const leaving = !!cur && a && now.has(a.id) && inp;
+        const on = inp && (!cur || leaving || (seen(a.id) && seen(t.id) && !reach.has(a.id)));
+        p.classList.toggle('dim', !on);
+        p.classList.toggle('reach', leaving && !!t && reach.has(t.id));
+        if (p.tagName === 'path') {
+          if (leaving && animateEdges) { p.classList.remove('drawing'); void p.getBoundingClientRect(); p.classList.add('drawing'); }
+          else if (!leaving) p.classList.remove('drawing');
+        }
+      });
+      animateEdges = false;
+    }
+
+    // The sidebar. Four faces: the process, a path, one box, one term. A walk shows the step.
+    const side = () => document.getElementById('side');
+    function termRows(terms) {
+      if (!terms.length) return '<p class="meta">This box names no glossary term.</p>';
+      return `<ul class="termlist">${terms.map(t => {
+        const e = data.terms[t];
+        return e ? `<li><div class="tn" onclick="showTerm('${esc(t)}')">${esc(t)}${e.core ? ' ★' : ''}<span class="cat">${esc(e.category)}</span></div><div class="td">${esc(e.fullDef)}</div></li>`
+                 : `<li><div class="tn">${esc(t)}</div><div class="td warn">No glossary entry. A finding for step 05.</div></li>`;
+      }).join('')}</ul>`;
+    }
+    function stepList() {
+      return `<h3>Steps</h3><ul class="boxlist">${proc.steps.map((s, i) => {
+        const bs = proc.boxes.filter(b => b.step === i + 1 && inPath(b));
+        return `<li class="${bs.length ? '' : 'outpath'}" onclick="stepTo(${i + 1})"><div class="bt">${i + 1}. ${esc(s)}</div><div class="bc">${bs.map(b => esc(b.title)).join(' · ') || 'nothing on this path'}</div></li>`;
+      }).join('')}</ul>`;
+    }
+    function showOverview() {
+      const unres = (data.meta.unresolved || []), paths = proc.paths || [];
+      side().innerHTML = `<div class="eyebrow">${esc(proc.cadence || 'process')}</div><h2>${esc(proc.title)}</h2>
+        <p class="card">${esc(proc.oneLine)}</p>
+        ${proc.target ? `<div class="meta" style="margin-bottom:10px"><b>Target.</b> ${esc(proc.target)}</div>` : ''}
+        <div class="meta"><b>${proc.boxes.length}</b> boxes in <b>${proc.steps.length}</b> steps across <b>${proc.lanes.length}</b> lanes.<br>
+        ${proc.reviewed ? `Reviewed <b>${esc(proc.reviewed)}</b>.` : '<b>Not yet reviewed.</b> A hypothesis until a named reviewer signs the file.'}
+        ${proc.source ? `<br>Source: ${esc(proc.source)}` : ''}</div>
+        ${unres.length ? `<p class="warn">${unres.length} term(s) with no glossary entry: ${unres.map(esc).join(', ')}.</p>` : ''}
+        ${paths.length ? `<h3>Paths</h3><ul class="boxlist">${paths.map(p => `<li onclick="setPath('${esc(p.id)}')"><div class="bt">${esc(p.label)}<span class="share">${esc(p.share)}</span></div><div class="bc">${esc(p.when)} · ${p.boxes.length} of ${proc.boxes.length} boxes</div></li>`).join('')}</ul>` : ''}
+        ${stepList()}
+        <div class="foot">Click a box for its explanation and the terms it uses. Definitions come from the glossary and are not edited here.</div>`;
+    }
+    function showPath() {
+      side().innerHTML = `<button class="back" onclick="setPath(null)">← whole process</button>
+        <div class="eyebrow">path · ${esc(path.share || '')}</div><h2>${esc(path.label)}</h2>
+        <p class="card">${esc(path.when)}</p>
+        <div class="detail">${path.detail || ''}</div>
+        <div class="meta"><b>${path.boxes.length}</b> of ${proc.boxes.length} boxes. The rest are faded on the picture.</div>
+        ${stepList()}
+        <div class="foot">Press Play to walk this path only.</div>`;
+    }
+    function selectBox(id) {
+      selected = id; applyFilters();
+      const b = proc.boxes.find(x => x.id === id), l = laneOf(b.lane);
+      const back = cur ? `stepTo(${cur})` : (path ? 'selected=null;applyFilters();showPath()' : 'selected=null;applyFilters();showOverview()');
+      side().innerHTML = `<button class="back" onclick="${back}">← ${cur ? 'back to step ' + cur : path ? 'back to the path' : 'back to the process'}</button>
+        <div class="eyebrow">step ${b.step} · ${esc(proc.steps[b.step - 1] || '')}</div><h2>${esc(b.title)}</h2>
+        <span class="lanechip ${esc(l.kind)}">${esc(l.label)}</span>${b.tag ? `<span class="tag">${esc(b.tag)}</span>` : ''}${b.humanMoment ? '<span class="hm">Human moment</span>' : ''}
+        ${path && !inPath(b) ? `<p class="warn">Not on the ${esc(path.label.toLowerCase())}.</p>` : ''}
+        <p class="card">${esc(b.card)}</p>
+        <div class="detail">${b.detail || '<p class="meta">No longer explanation yet. Add prose under this box in the process file.</p>'}</div>
+        <h3>Terms this box uses</h3>${termRows(b.terms)}
+        <div class="foot">Definitions from ${esc(data.meta.definitionsFrom || 'the glossary')}.</div>`;
+      side().querySelectorAll('.detail .term').forEach(a => a.onclick = () => showTerm(a.dataset.term));
+      side().parentElement.scrollTop = 0;
+    }
+    function showTerm(t) {
+      const e = data.terms[t];
+      const back = selected ? `selectBox('${esc(selected)}')` : 'showOverview()';
+      side().innerHTML = `<button class="back" onclick="${back}">← back</button><div class="eyebrow">${e ? esc(e.category) : 'no entry'}${e && e.type ? ' · ' + esc(e.type) : ''}${e && e.core ? ' · core' : ''}${e && e.status ? ' · ' + esc(e.status) : ''}</div><h2>${esc(t)}</h2>
+        ${e ? `<div class="detail"><p>${esc(e.fullDef)}</p></div>` : '<p class="warn">No glossary entry. A finding for step 05.</p>'}
+        ${e && e.alsoCalled && e.alsoCalled.length ? `<p class="meta">Also called ${e.alsoCalled.map(esc).join(' · ')}</p>` : ''}
+        <h3>Used in</h3><ul class="boxlist">${proc.boxes.filter(b => b.terms.includes(t)).map(b => `<li onclick="selectBox('${esc(b.id)}')"><div class="bt">${esc(b.title)}</div><div class="bc">step ${b.step} · ${esc(laneOf(b.lane).label)}</div></li>`).join('') || '<li class="meta">Named only in prose.</li>'}</ul>
+        <div class="foot">Definition from ${esc(data.meta.definitionsFrom || 'the glossary')}. If it reads wrong, the fix is in step 05, never here.</div>`;
+    }
+
+    // The walk. One step lit at a time, with the arrows leaving it. On a path, only its boxes
+    // light and only its steps are visited.
+    function stepTo(n) {
+      if (!n) { stopWalk(); return; }
+      if (n < 1 || n > proc.steps.length) return;
+      cur = n; selected = null; animateEdges = true; applyFilters();
+      const boxes = proc.boxes.filter(b => b.step === n && inPath(b));
+      const steps = stepsInPath(), pos = steps.indexOf(n) + 1;
+      side().innerHTML = `<button class="back" onclick="stopWalk()">← ${path ? 'show the ' + esc(path.label.toLowerCase()) : 'show the whole process'}</button>
+        <div class="eyebrow">step ${n}${path ? ` · ${esc(path.label)}` : ''}${pos ? ` · ${pos} of ${steps.length}` : ''}</div><h2>${esc(proc.steps[n - 1])}</h2>
+        ${boxes.map((b, i) => { const l = laneOf(b.lane); return `<div class="stepblock ${esc(l.kind)}"><span class="n">${n}.${i + 1}</span><span class="lanechip ${esc(l.kind)}">${esc(l.label)}</span>${b.tag ? `<span class="tag">${esc(b.tag)}</span>` : ''}${b.humanMoment ? '<span class="hm">Human moment</span>' : ''}
+          <div class="bt" onclick="selectBox('${esc(b.id)}')">${esc(b.title)}</div>
+          <p class="card">${esc(b.card)}</p><div class="detail">${b.detail}</div></div>`; }).join('') || '<p class="meta">Nothing happens at this step on this path.</p>'}
+        <div class="foot">Click a box title for the terms it uses. Arrow keys move a step.</div>`;
+      side().querySelectorAll('.detail .term').forEach(a => a.onclick = () => showTerm(a.dataset.term));
+      side().parentElement.scrollTop = 0;
+      const first = boxes[0] && document.querySelector(`.box[data-id="${boxes[0].id}"]`);
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      document.getElementById('playStatus').textContent = `Step ${n} of ${proc.steps.length}${path ? ', ' + path.label.toLowerCase() : ''}${playing ? ' · playing' : ''}`;
+      document.getElementById('btnPrev').disabled = !prevStep();
+      document.getElementById('btnNext').disabled = !nextStep();
+    }
+    function togglePlay() {
+      if (playing) { pause(); return; }
+      playing = true; document.getElementById('btnPlay').textContent = 'Pause';
+      const s = stepsInPath();
+      stepTo(nextStep() || s[0]);
+      timer = setInterval(() => { const nx = nextStep(); if (!nx) pause(); else stepTo(nx); }, 6000);
+    }
+    function pause() {
+      playing = false; clearInterval(timer); timer = null;
+      document.getElementById('btnPlay').textContent = 'Play';
+      if (cur) document.getElementById('playStatus').textContent = `Step ${cur} of ${proc.steps.length} · paused`;
+    }
+    // The default view: whole process, every step shown, no walk, nothing selected.
+    function resetView() {
+      pause(); cur = 0; selected = null; path = null; hiddenSteps = new Set();
+      renderPathChips(); applyFilters(); showOverview();
+      document.getElementById('playStatus').textContent = 'Press Play, or click a step number.';
+      document.getElementById('btnPrev').disabled = false; document.getElementById('btnNext').disabled = false;
+    }
+    function stopWalk(quiet) {
+      pause(); cur = 0; selected = null;
+      document.getElementById('playStatus').textContent = 'Press Play, or click a step number.';
+      document.getElementById('btnPrev').disabled = false; document.getElementById('btnNext').disabled = false;
+      if (!quiet && proc) { applyFilters(); path ? showPath() : showOverview(); }
+    }
+    // Zoom. Buttons, trackpad pinch and Ctrl/Cmd + wheel zoom; a plain wheel scrolls. Dragging
+    // empty space pans. The toolbar's Reset leaves the zoom alone, as on the ontology page.
+    let zoom = 1;
+    function setZoom(z, cx, cy) {
+      const sc = document.getElementById('scroller'), cv = document.getElementById('canvas');
+      const old = zoom;
+      zoom = Math.max(0.5, Math.min(1.75, z));
+      // Keep the point under the pointer (or the centre) where it was.
+      const r = sc.getBoundingClientRect();
+      const px = cx === undefined ? r.width / 2 : cx - r.left, py = cy === undefined ? r.height / 2 : cy - r.top;
+      const x = (sc.scrollLeft + px) / old, y = (sc.scrollTop + py) / old;
+      cv.style.zoom = zoom;
+      sc.scrollLeft = x * zoom - px; sc.scrollTop = y * zoom - py;
+      document.getElementById('zoomLvl').textContent = Math.round(zoom * 100) + '%';
+    }
+    function adjustZoom(f, cx, cy) { setZoom(zoom * f, cx, cy); }
+    function resetZoom() { setZoom(1); }
+    (function () {
+      const sc = document.getElementById('scroller');
+      sc.addEventListener('wheel', e => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        e.preventDefault();
+        adjustZoom(e.deltaY < 0 ? 1.08 : 0.93, e.clientX, e.clientY);
+      }, { passive: false });
+      let drag = null;
+      sc.addEventListener('mousedown', e => {
+        if (e.button !== 0 || e.target.closest('.box, .colhead, button, a, select')) return;
+        drag = { x: e.clientX, y: e.clientY, l: sc.scrollLeft, t: sc.scrollTop };
+        sc.classList.add('panning');
+      });
+      window.addEventListener('mousemove', e => {
+        if (!drag) return;
+        sc.scrollLeft = drag.l - (e.clientX - drag.x); sc.scrollTop = drag.t - (e.clientY - drag.y);
+      });
+      window.addEventListener('mouseup', () => { drag = null; sc.classList.remove('panning'); });
+    })();
+
+    document.addEventListener('keydown', e => {
+      if (!proc || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); const n = nextStep(); if (n) stepTo(n); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); const n = prevStep(); if (n) stepTo(n); }
+      if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+      if (e.key === 'Escape') stopWalk();
+    });
+    init();
+  </script>
+</body>
+</html>

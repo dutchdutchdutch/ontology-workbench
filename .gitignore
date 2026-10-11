@@ -1,0 +1,12 @@
+# macOS folder metadata
+.DS_Store
+
+# Python build artifacts
+__pycache__/
+*.pyc
+
+# Personal Claude Code settings: permissions and paths that belong to one machine
+.claude/settings.local.json
+
+# Review packages are rebuilt and sent; the folder beside the zip is the committed record
+projects/*/08-publish/*-review.zip

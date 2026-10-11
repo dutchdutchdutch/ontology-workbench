@@ -1,0 +1,62 @@
+# One project, one file. Every value specific to this product lives here and nowhere else.
+# The factory reads this; it never hard-codes any of it.
+#
+# A worked example. Linden Street Bistro, its people, its app and every source below are made up.
+# The links read EXAMPLE-not-a-real-link because there is nothing to pull.
+
+name: bistro
+display_name: Linden Street Bistro
+started: 2026-09-01
+
+sources:
+  drive:
+    root_folder_id: EXAMPLE-not-a-real-link   # the bistro's shared "Staff" folder
+    cutoff: 2026-01-01
+  linear:
+    workspace: EXAMPLE-not-a-real-link        # the tracker for the bistro's booking and ordering app
+    team_key: BIS
+    cutoff: 2026-06-01
+  code:                         # git, not code: step 00 pulls PR titles and branch names, never source files
+    github_repo: example-org/linden-table
+    pr_cutoff: 2026-06-01
+    branch_pattern: "<name>/<key>-<issue>-<slug>"
+  glossary:
+    path: null                  # no glossary existed before this project
+
+seed_terms: [guest, table, ticket, check, service]
+
+authority_order: [drive, linear-issues, code]   # the floor and the kitchen own the words; the app follows
+
+targets:
+  draft_entry_cap: 100
+  # A small restaurant has a small core. Twelve is what the dependency test found, and it is
+  # well under the default of 30; see 05-glossary/about-core-terms.md.
+  core_terms: { round: 1, expect: 12, warn_above: 55 }
+
+people:                         # who may rule, and the owner: values
+  - { name: Theo, discipline: floor }         # floor manager
+  - { name: Rosa, discipline: kitchen }       # head chef
+  - { name: Priya, discipline: engineering }  # builds the booking and ordering app
+
+disciplines: [floor, kitchen, engineering]
+
+# The groups the glossary aligns. A term stays when two or more of them share it.
+audiences: [guest, floor staff, kitchen staff]
+
+ontology:
+  layout: reading
+
+# The bistro's own verbs. Every relation line but one carries a kind, and a kind decides the
+# flow. The one without, Comp's "reduces", reads as producing by default, which is right, so the
+# lists stay empty.
+verbs:
+  consumes: []
+  structure: []
+  produces: []
+
+publish:
+  folder: Linden Street Bistro vocabulary
+  contact: Theo
+  files: [glossary, core-terms, about-core-terms, taxonomy, backlog, ontology, ontology-machine, streams, processes]
+  destinations:
+    - folder 08-publish/sent-example

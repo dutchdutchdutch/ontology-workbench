@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Key terms</title>
+  <!-- The key terms as a reading page, for a review package. Loads ./glossary-data.js from its own
+       folder and holds no project data. The core entries, by category, in the order step 05 publishes.
+       Generated from 05-glossary/glossary.md by tools/build-review.py; never edited by hand. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* The same room as the other pages: navy canvas and cards, slate lines, gold for the thing
+         you picked. ink: titles. read: text read in full, 11.8:1. ink-3: the smallest labels,
+         6.5:1 and never below 11px. */
+      --bg: #060b17; --paper: #0a0f1e; --card: #0d162c; --ink: #e2e8f0; --read: #cbd5e1; --ink-2: #94a3b8; --ink-3: #8b97ab;
+      --line: #1e293b; --line-2: #334155; --accent: #f59e0b; --accent-ink: #0b0f1a;
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; -webkit-font-smoothing: antialiased; }
+    html { scroll-padding-top: 132px; }
+    header { padding: 18px 24px 12px; }
+    .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    .kicker a { color: var(--accent); text-decoration: none; }
+    .kicker a:hover { text-decoration: underline; }
+    h1 { margin: 4px 0 4px; font-size: 24px; font-weight: 800; letter-spacing: -.01em; }
+    .oneline { margin: 0; color: var(--ink-2); font-size: 15px; }
+    .toolbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--bg); }
+    .toolbar input { font: inherit; font-size: 14px; color: var(--ink); background: var(--card); border: 1px solid var(--line-2); border-radius: 8px; padding: 7px 12px; min-height: 32px; width: 280px; }
+    .toolbar input::placeholder { color: var(--ink-3); }
+    .toolbar button { font: inherit; font-weight: 600; font-size: 13px; padding: 7px 12px; min-height: 32px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; }
+    .toolbar button:hover { border-color: var(--ink-3); }
+    .toolbar button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .toolbar .sep { width: 1px; height: 22px; background: var(--line-2); margin: 0 4px; }
+    .toolbar .count { font-size: 12.5px; color: var(--ink-3); margin-left: 4px; }
+
+    /* A category index beside a reading column. The column holds about 65 characters a line. */
+    .layout { display: grid; grid-template-columns: 220px minmax(0, 720px); gap: 48px; justify-content: center; padding: 28px 24px 64px; }
+    nav { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; }
+    nav h3, section h2 .n { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+    nav h3 { margin: 0 0 10px; }
+    nav a { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; color: var(--ink-2); text-decoration: none; font-size: 13.5px; line-height: 1.35; border-top: 1px solid var(--line); }
+    nav a:hover { color: var(--ink); }
+    nav a .c { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+    section { margin: 0 0 40px; }
+    section h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -.01em; line-height: 1.25; }
+    section h2 .n { display: block; margin-bottom: 4px; }
+    .entry { padding: 16px 0; border-top: 1px solid var(--line); }
+    .entry:target { background: rgba(245,158,11,.06); box-shadow: -12px 0 0 rgba(245,158,11,.06), 12px 0 0 rgba(245,158,11,.06); }
+    .entry .t { font-size: 17px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+    .entry .t .core { color: var(--accent); font-size: 13px; margin-left: 6px; }
+    .entry .k { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); letter-spacing: .04em; margin-left: 8px; font-weight: 500; }
+    .entry .d { margin: 6px 0 0; font-size: 15px; line-height: 1.6; color: var(--read); max-width: 65ch; }
+    .entry .d a { color: var(--ink); text-decoration: underline; text-decoration-color: rgba(203,213,225,.35); text-underline-offset: 2px; }
+    .entry .d a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+    .entry .k.st { border: 1px solid var(--line-2); border-radius: 4px; padding: 0 5px; }
+    .entry .also { margin-top: 6px; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+    .entry .also b { font-weight: 600; color: var(--ink-3); font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; margin-right: 6px; }
+    .empty { color: var(--ink-2); font-size: 15px; padding: 24px 0; }
+    footer { border-top: 1px solid var(--line); padding: 14px 24px; font-size: 12.5px; color: var(--ink-3); }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; gap: 16px; }
+      nav { position: static; max-height: none; }
+      .toolbar input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="kicker" id="kicker">glossary</div>
+    <h1 id="title">Glossary</h1>
+    <p class="oneline" id="oneline"></p>
+  </header>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="Find a term, or a word in a definition" oninput="apply()">
+    <span class="sep"></span>
+    <button onclick="resetView()">Reset</button>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="layout">
+    <nav><h3>Categories</h3><div id="nav"></div></nav>
+    <main id="main"></main>
+  </div>
+  <footer id="foot"></footer>
+
+  <script src="./glossary-data.js"></script>
+  <script>
+    const g = (typeof glossaryData !== 'undefined') ? glossaryData : { meta: {}, categories: [] };
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const norm = s => String(s).toLowerCase();
+
+    function init() {
+      const m = g.meta;
+      const home = (typeof reviewHome !== 'undefined') ? reviewHome : null;
+      document.getElementById('kicker').innerHTML = home ? `<a href="${esc(home.href)}">← ${esc(home.label)}</a> · key terms` : `${esc(m.project || '')} · key terms`;
+      document.getElementById('title').textContent = m.title || 'Key terms';
+      document.title = m.title || 'Key terms';
+      document.getElementById('oneline').textContent = `The ${m.count} core terms in ${g.categories.length} categories: the smallest set a new person must learn to read the rest. The full glossary holds ${m.allCount}.`;
+      document.getElementById('foot').textContent = `Published from draft ${m.publishedFrom}, stage ${m.stage}. Generated from ${m.generatedFrom}. If this page and the glossary file disagree, the file wins.`;
+      apply();
+    }
+    function resetView() { document.getElementById('q').value = ''; apply(); window.scrollTo(0, 0); }
+
+    function apply() {
+      const q = norm(document.getElementById('q').value.trim());
+      let shown = 0;
+      const nav = [], main = [];
+      g.categories.forEach((c, i) => {
+        const es = c.entries.filter(e =>
+          (!q || norm(e.term).includes(q) || norm(e.plain).includes(q) || e.also.some(a => norm(a).includes(q))));
+        if (!es.length) return;
+        shown += es.length;
+        const id = 'cat-' + (i + 1);
+        nav.push(`<a href="#${id}"><span>${esc(c.name)}</span><span class="c">${es.length}</span></a>`);
+        main.push(`<section id="${id}"><h2><span class="n">${String(i + 1).padStart(2, '0')}</span>${esc(c.name)}</h2>${es.map(e => `
+          <div class="entry" id="${esc(e.slug)}">
+            <div class="t">${esc(e.term)}<span class="k">${esc(e.type || '')}${e.isA ? ' · kind of ' + esc(e.isA) : ''}</span>${e.status && e.status !== 'verified' ? `<span class="k st">${esc(e.status)}</span>` : ''}</div>
+            <p class="d">${e.def}</p>
+            ${e.also.length ? `<div class="also"><b>Also called</b>${e.also.map(esc).join(' · ')}</div>` : ''}
+          </div>`).join('')}</section>`);
+      });
+      document.getElementById('nav').innerHTML = nav.join('');
+      document.getElementById('main').innerHTML = main.join('') || '<p class="empty">No term matches. Clear the search or press Reset.</p>';
+      document.getElementById('count').textContent = `${shown} of ${g.meta.count} terms`;
+    }
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<!-- Published copy of the bistro vocabulary, draft v2, stage trial, published 2026-10-10. Do not edit it here: it is replaced on every publish. Send changes to Theo. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ontology</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-canvas: #060b17;
+      --bg-header: rgba(10, 15, 30, 0.96);
+      --bg-card: rgba(13, 22, 44, 0.95);
+      --border-color: #1e293b;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      
+      /* Accent colour for controls and highlights */
+      --accent-neon: #00f5d4;
+
+      /* Selection highlight, by what the relation claims. A consuming edge is cyan even though
+         its sentence runs the other way; see DESIGN-NOTES.md. */
+      --color-incoming: #00f5d4;  /* cyan: this term CONSUMES the other */
+      --color-outgoing: #ff4d6d;  /* pink: this term PRODUCES the other */
+      --color-structure: #94a3b8; /* slate: containment, kind, requirement. Not a flow */
+      --color-selected: #f59e0b;  /* gold: the selected term */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-canvas);
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header Bar */
+    header {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 30;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 245, 212, 0.1);
+      border: 1.5px solid var(--accent-neon);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-neon);
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 0 12px rgba(0, 245, 212, 0.3);
+    }
+
+    .title-group h1 {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .title-group p {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-family: var(--font-mono);
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem 1rem 0.5rem 2.2rem;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      width: 250px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-neon);
+      box-shadow: 0 0 12px rgba(0, 245, 212, 0.25);
+      width: 300px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      fill: #64748b;
+      width: 14px;
+      height: 14px;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 6px;
+      padding: 3px;
+      border: 1px solid var(--border-color);
+    }
+
+    .view-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 0.4rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background: var(--accent-neon);
+      color: #060b17;
+      box-shadow: 0 0 10px rgba(0, 245, 212, 0.4);
+    }
+
+    /* Main Container Layout */
+    .main-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 65px);
+      position: relative;
+    }
+
+    /* Sidebar Inspector & Filters */
+    .sidebar {
+      width: 360px;
+      background: var(--bg-header);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      padding: 1.1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-section h3 {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-bottom: 0.75rem;
+    }
+
+    .domain-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .domain-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+
+    .domain-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .domain-info {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .domain-badge {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      box-shadow: 0 0 6px currentColor;
+    }
+
+
+    .domain-count {
+      font-size: 0.72rem;
+      color: #64748b;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Semantic Passport Inspector Panel */
+    .inspector-panel {
+      padding: 1.1rem;
+      display: none;
+    }
+
+    .inspector-panel.active {
+      display: block;
+    }
+
+    .sidebar-section-header h3 {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-neon);
+      margin-bottom: 0.75rem;
+    }
+
+    .entity-header {
+      margin-bottom: 0.85rem;
+    }
+
+    .entity-id-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+
+    .entity-name {
+      font-family: var(--font-mono);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Passport Definition Styling */
+    .passport-def-box {
+      background: rgba(6, 11, 23, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      margin-top: 0.6rem;
+    }
+
+    .def-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #64748b;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.35rem;
+    }
+
+    .def-full-text {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    /* Relationship Lists */
+    .rel-group {
+      margin-top: 1.25rem;
+    }
+
+    .rel-title {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .rel-title.incoming { color: var(--color-incoming); }
+    .rel-title.outgoing { color: var(--color-outgoing); }
+    .rel-title.structure { color: #94a3b8; }
+
+    .rel-dir {
+      color: #64748b;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-left: 0.3rem;
+    }
+
+    .rel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .rel-card {
+      background: rgba(6, 11, 23, 0.85);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rel-card:hover {
+      border-color: var(--accent-neon);
+      box-shadow: 0 0 10px rgba(0, 245, 212, 0.25);
+    }
+
+    .rel-label-inc {
+      color: var(--color-incoming);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .rel-label-out {
+      color: var(--color-outgoing);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    /* A fallback edge, listed after the stated relations and read as secondary. */
+    .rel-card-depends { opacity: 0.55; border-style: dashed; }
+    .rel-card-depends .rel-label-inc,
+    .rel-card-depends .rel-label-out { font-weight: 500; font-style: italic; }
+
+    /* Main Viewport & Canvas */
+    .viewport {
+      flex: 1;
+      position: relative;
+      background-color: var(--bg-canvas);
+      /* Cyberpunk PCB Grid Background */
+      background-image: 
+        linear-gradient(rgba(0, 245, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 212, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .viewport:active {
+      cursor: grabbing;
+    }
+
+    /* Top Banner */
+    .blueprint-banner {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+      right: 1.25rem;
+      background: rgba(10, 17, 34, 0.95);
+      border: 1.5px solid rgba(0, 245, 212, 0.3);
+      box-shadow: 0 0 25px rgba(0, 245, 212, 0.12);
+      border-radius: 12px;
+      padding: 0.85rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .banner-status {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .reset-btn { cursor: pointer; font: inherit; min-height: 32px; }
+    .reset-btn:hover { filter: brightness(1.15); }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 245, 212, 0.12);
+      border: 1px solid var(--accent-neon);
+      color: var(--accent-neon);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--accent-neon);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-neon);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
+    .banner-instruction {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .banner-instruction strong {
+      color: var(--accent-neon);
+    }
+
+    .interaction-legend {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .legend-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .chip-inc {
+      background: rgba(0, 245, 212, 0.15);
+      border: 1px solid var(--color-incoming);
+      color: var(--color-incoming);
+    }
+
+    .chip-out {
+      background: rgba(255, 77, 109, 0.15);
+      border: 1px solid var(--color-outgoing);
+      color: var(--color-outgoing);
+    }
+
+    .chip-str {
+      background: rgba(148, 163, 184, 0.15);
+      border: 1px solid var(--color-structure);
+      color: var(--color-structure);
+    }
+
+    .legend-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .legend-toggle input { cursor: pointer; accent-color: var(--accent-neon); }
+
+    /* Canvas Stage */
+    #canvas-stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2500px;
+      height: 1600px;
+      transform-origin: 0 0;
+    }
+
+    #svg-traces {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .circuit-trace {
+      fill: none;
+      stroke: rgba(148, 163, 184, 0.22);
+      stroke-width: 1.8px;
+      transition: all 0.3s ease;
+    }
+
+    .circuit-trace.trace-incoming {
+      stroke: var(--color-incoming) !important;
+      stroke-width: 3.5px !important;
+      filter: drop-shadow(0 0 6px var(--color-incoming));
+      stroke-dasharray: 8 6;
+      animation: dashFlow 1.2s linear infinite;
+    }
+
+    .circuit-trace.trace-outgoing {
+      stroke: var(--color-outgoing) !important;
+      stroke-width: 3.5px !important;
+      filter: drop-shadow(0 0 6px var(--color-outgoing));
+      stroke-dasharray: 8 6;
+      animation: dashFlow 1.2s linear infinite;
+    }
+
+    .circuit-trace.trace-structure {
+      stroke: var(--color-structure) !important;
+      stroke-width: 2.4px !important;
+      filter: drop-shadow(0 0 4px var(--color-structure));
+    }
+
+    .circuit-trace.trace-dimmed {
+      opacity: 0.08 !important;
+    }
+
+    /* A depends-on edge is a fallback, not a stated relation: the glossary named no verb for
+       this pair. Drawn thin, dashed and faint so the eye reads the stated relations first. */
+    .circuit-trace.trace-depends {
+      stroke: rgba(148, 163, 184, 0.16);
+      stroke-width: 1.2px;
+      stroke-dasharray: 3 5;
+    }
+
+    /* A fallback reads as secondary by its dashed border and italics, never by fading: faded
+       text fell to 2:1 against the canvas, and to 2.4:1 when selected. 2026-10-04. */
+    .edge-badge.badge-depends {
+      font-style: italic;
+      border-style: dashed;
+    }
+
+    .trace-hidden, .badge-hidden { display: none !important; }
+
+    /* Every trace path is drawn from rel.from to rel.to, which is subject to object, because
+       that is the sentence the glossary makes. Which way the work moves is a separate fact,
+       carried on the edge as rel.flow. A consuming verb runs against the sentence: "a station
+       reads a ticket" is station to ticket as a sentence and ticket to station as a flow. Those
+       edges animate backwards, so the picture shows the station taking the ticket in. */
+    @keyframes dashFlow {
+      from { stroke-dashoffset: 28; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes dashFlowReverse {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 28; }
+    }
+
+    .circuit-trace.flow-consumes.trace-incoming,
+    .circuit-trace.flow-consumes.trace-outgoing {
+      animation-name: dashFlowReverse;
+    }
+
+    /* Structure is not a movement, so it is highlighted without being animated. */
+    .circuit-trace.trace-structure {
+      stroke-dasharray: none;
+      animation: none;
+    }
+
+    #edge-labels-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .edge-badge {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      background: #060b17;
+      border: 1px solid var(--border-color);
+      color: rgba(255, 255, 255, 0.5);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      pointer-events: auto;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+
+    .edge-badge.badge-incoming {
+      background: var(--color-incoming) !important;
+      color: #060b17 !important;
+      font-weight: 800 !important;
+      font-size: 11px !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 12px var(--color-incoming);
+      z-index: 15;
+    }
+
+    .edge-badge.badge-outgoing {
+      background: var(--color-outgoing) !important;
+      color: #ffffff !important;
+      font-weight: 800 !important;
+      font-size: 11px !important;
+      border-color: #ffffff !important;
+      box-shadow: 0 0 12px var(--color-outgoing);
+      z-index: 15;
+    }
+
+    .edge-badge.badge-structure {
+      background: var(--color-structure) !important;
+      color: #060b17 !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      border-color: #cbd5e1 !important;
+      z-index: 14;
+    }
+
+    .edge-badge.badge-dimmed {
+      opacity: 0.05 !important;
+    }
+
+    /* At rest, with nothing selected, the canvas shows the frames and the terms and no lines:
+       a hundred lines and their labels read as noise, and every one of them is in the passport
+       once a term is selected. Selecting a term brings back its own lines. */
+    #canvas-stage.at-rest #svg-traces,
+    #canvas-stage.at-rest #edge-labels-layer {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #svg-traces, #edge-labels-layer { transition: opacity 0.2s; }
+
+    #subgraphs-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .subgraph-frame {
+      position: absolute;
+      border-radius: 14px;
+      border: 1.5px dashed;
+      background: rgba(13, 22, 44, 0.3);
+      padding: 10px;
+      transition: opacity 0.3s;
+    }
+
+    .subgraph-title-badge {
+      position: absolute;
+      top: -12px;
+      left: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      background: #060b17;
+      border: 1px solid currentColor;
+    }
+
+    #nodes-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+    }
+
+    .node-card {
+      position: absolute;
+      width: 270px;
+      height: 80px;
+      background: var(--bg-card);
+      border: 2px solid;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .node-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .node-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid currentColor;
+    }
+
+    .node-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .node-header-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .node-code-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      opacity: 0.85;
+    }
+
+    .node-title-text {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-subtitle-text {
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.65);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-card.node-selected {
+      border-color: var(--color-selected) !important;
+      border-width: 3px !important;
+      box-shadow: 0 0 25px var(--color-selected) !important;
+      transform: scale(1.04);
+      z-index: 20 !important;
+    }
+
+    .node-card.node-incoming {
+      border-color: var(--color-incoming) !important;
+      border-width: 2.5px !important;
+      box-shadow: 0 0 20px rgba(0, 245, 212, 0.5) !important;
+      background: rgba(0, 245, 212, 0.12) !important;
+      z-index: 18 !important;
+    }
+
+    .node-card.node-outgoing {
+      border-color: var(--color-outgoing) !important;
+      border-width: 2.5px !important;
+      box-shadow: 0 0 20px rgba(255, 77, 109, 0.5) !important;
+      background: rgba(255, 77, 109, 0.12) !important;
+      z-index: 18 !important;
+    }
+
+    .node-card.node-structure {
+      border-color: var(--color-structure) !important;
+      border-width: 2.5px !important;
+      box-shadow: 0 0 14px rgba(148, 163, 184, 0.35) !important;
+      background: rgba(148, 163, 184, 0.10) !important;
+      z-index: 17 !important;
+    }
+
+    .node-card.node-dimmed {
+      opacity: 0.12 !important;
+      filter: grayscale(0.8);
+    }
+
+    /* Workflow lens. The layout never changes: the nodes stay in their category frames and the
+       lens only marks who is in the sequence and where. A term can sit in two sequences. */
+    .node-card.wf-member {
+      outline: 2px solid var(--color-selected);
+      outline-offset: 3px;
+    }
+
+    .node-card.wf-other {
+      opacity: 0.3;
+      filter: grayscale(0.6);
+    }
+
+    .wf-pos {
+      position: absolute;
+      top: -11px;
+      left: -11px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 5px;
+      border-radius: 11px;
+      background: var(--color-selected);
+      color: #060b17;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px var(--color-selected);
+      z-index: 25;
+    }
+
+    .lens-select {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .lens-select:focus { border-color: var(--color-selected); }
+    .lens-select.lens-on { border-color: var(--color-selected); color: var(--color-selected); }
+
+    .zoom-controls {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      background: rgba(10, 17, 34, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      z-index: 30;
+    }
+
+    .zoom-btn {
+      background: var(--bg-header);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .zoom-btn:hover {
+      border-color: var(--accent-neon);
+      color: var(--accent-neon);
+      box-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+    }
+
+    .table-view-container {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      display: none;
+      background: var(--bg-canvas);
+    }
+
+    .table-view-container.active {
+      display: block;
+    }
+
+    .ontology-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .ontology-table th {
+      background: var(--bg-header);
+      padding: 0.85rem 1rem;
+      color: #64748b;
+      font-weight: 700;
+      border-bottom: 2px solid var(--border-color);
+      text-transform: uppercase;
+    }
+
+    .ontology-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .ontology-table tr:hover td {
+      background: rgba(0, 245, 212, 0.03);
+    }
+    /* Reading pass, 2026-10-02. The same rules the process page follows, measured against the
+       human interface guidelines: body text in a reading colour (#cbd5e1, 11.8:1 on the panel),
+       the secondary grey (#94a3b8, 7.3:1) only for short lines, the smallest labels at #8b97ab
+       (6.5:1) and never below 11px, Inter for anything read in full and mono only for labels,
+       controls at least 32px tall. Every rule here overrides one above it; nothing else moves. */
+    .sidebar { width: 400px; }
+    .sidebar-section-header h3 { font-size: 11px; letter-spacing: .12em; }
+    .entity-id-tag { font-size: 11px; }
+    .entity-name { font-family: var(--font-sans); font-size: 22px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; }
+    .passport-def-box { padding: 12px 14px; }
+    .def-label { font-size: 11px; font-weight: 600; color: #8b97ab; letter-spacing: .12em; }
+    .def-full-text { font-size: 15px; line-height: 1.6; color: #cbd5e1; max-width: 60ch; }
+    .rel-title { font-size: 11px; letter-spacing: .1em; }
+    .rel-dir { font-size: 11px; color: #8b97ab; }
+    .rel-card { font-family: var(--font-sans); font-size: 14px; padding: 10px 12px; min-height: 32px; }
+    .edge-badge { font-size: 11px; color: #94a3b8; }   /* 7.7:1 on the canvas; was 10px at 5.3:1 */
+    .rel-label-inc, .rel-label-out { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
+    .lens-select { min-height: 32px; font-size: 13px; }
+    .legend-toggle { min-height: 32px; }
+    /* Top bar, 2026-10-04. One shape for every control: 32px tall, 8px corners, a small uppercase
+       label beside it. The value stream is the page's main control, so it leads and carries the
+       selection gold; the colour key sits apart and quieter. Text stays at 7:1 or better. */
+    .blueprint-banner { padding: 0.6rem 1rem; gap: 1rem; }
+    .reset-btn.status-pill { border-radius: 8px; padding: 0 12px; font-size: 12px; letter-spacing: .08em; }
+    .banner-instruction { font-family: var(--font-sans); font-size: 13px; color: #cbd5e1; }
+    .interaction-legend { gap: 0.75rem; font-family: var(--font-sans); font-size: 13px; font-weight: 600; }
+    .bar-group { display: flex; align-items: center; gap: 0.75rem; }
+    .bar-group + .bar-group { padding-left: 0.75rem; border-left: 1px solid #334155; }
+    .bar-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .12em;
+      text-transform: uppercase; color: #94a3b8; }
+    .legend-toggle { gap: 0.5rem; }
+    .lens-select { min-height: 32px; border-radius: 8px; border: 1px solid #334155; padding: 0 10px;
+      font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: #cbd5e1; }
+    .bar-primary .bar-label { color: #f59e0b; }
+    .bar-primary .lens-select { border: 1.5px solid #f59e0b; color: #fbbf24; min-width: 12rem; }
+    .bar-primary .lens-select.lens-on { background: rgba(245, 158, 11, 0.18); color: #fde68a; }
+
+    /* The key as switches. On: the chip as before. Off: outline only, the label kept at 7:1. */
+    .circuit-trace.flow-off, .edge-badge.flow-off { display: none !important; }
+    button.legend-chip { font: inherit; font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+      min-height: 28px; cursor: pointer; }
+    button.legend-chip::before { content: '\25CF'; margin-right: 2px; }
+    button.legend-chip[aria-pressed="false"] { background: transparent !important; border-color: #334155 !important;
+      color: #94a3b8 !important; }
+    button.legend-chip[aria-pressed="false"]::before { content: '\25CB'; }
+    button.legend-chip:focus-visible { outline: 2px solid #cbd5e1; outline-offset: 2px; }
+    .bar-key .legend-chip { font-family: var(--font-mono); font-size: 11px; padding: 2px 7px; }
+    /* Machine detail, 2026-10-03: what an agent reads about the selected term, folded under the
+       passport. Same reading colours as above. Nothing here touches the canvas. */
+    .machine-detail { margin-top: 1.5rem; padding-top: 10px; border-top: 1px solid var(--border-color); }
+    .machine-toggle { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 6px; width: 100%; min-height: 32px; cursor: pointer;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #8b97ab; }
+    .machine-toggle::before { content: '\25B8'; }
+    .machine-detail:not(.folded) .machine-toggle::before { content: '\25BE'; }
+    .machine-toggle:hover { color: #cbd5e1; }
+    .machine-toggle:focus-visible { outline: 2px solid #8b97ab; outline-offset: 2px; border-radius: 4px; }
+    .machine-detail.folded .machine-body { display: none; }
+    .machine-body dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 6px 0 0; }
+    .machine-body dt { font-family: var(--font-mono); font-size: 11px; color: #8b97ab; padding-top: 2px; }
+    .machine-body dd { margin: 0; font-family: var(--font-sans); font-size: 13px; line-height: 1.5; color: #cbd5e1; }
+    .machine-rel { padding: 6px 0; border-bottom: 1px solid var(--border-color); font-family: var(--font-sans); font-size: 13px; line-height: 1.5; color: #cbd5e1; }
+    .machine-rel:last-child { border-bottom: 0; }
+    .machine-rel code { font-family: var(--font-mono); font-size: 11px; color: #94a3b8; }
+    .machine-muted { font-size: 11px; color: #8b97ab; }
+    .machine-subhead { margin-top: 12px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .12em; color: #8b97ab; }
+    /* The glossary view is a reading view. Inter for the text, mono only for the code and the
+       category; the definition column capped at 65 characters, which is the readable-content
+       width Apple's guidelines set (about 672pt at body size, in the 45 to 75 range); the whole
+       table held to a readable column and centred, with the header pinned while scrolling. */
+    .table-view-container { padding: 32px 40px 48px; }
+    .table-view-container h2 { font-family: var(--font-sans); font-size: 22px; font-weight: 800; letter-spacing: -.01em; color: #e2e8f0; width: 880px; max-width: 100%; margin: 0 auto 16px; }
+    /* A table gives a cell whatever width is left, so the line length is set by the table's own
+       width: code, a 240px term column, and about 62 characters of definition. */
+    .ontology-table { font-family: var(--font-sans); font-size: 15px; line-height: 1.6; width: 880px; max-width: 100%; margin: 0 auto; table-layout: fixed; }
+    .ontology-table th { position: sticky; top: 0; z-index: 1; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .12em; color: #8b97ab; padding: 12px 12px; }
+    .ontology-table td { padding: 14px 12px; vertical-align: top; color: #cbd5e1; }
+    /* Term and its domain share a cell, so the definition starts right after the name. The two
+       short columns shrink to their content; only the definition takes room. */
+    .ontology-table th:nth-child(1), .ontology-table td:nth-child(1) { width: 56px; }
+    .ontology-table th:nth-child(2), .ontology-table td:nth-child(2) { width: 240px; }
+    .ontology-table td:nth-child(1) { font-family: var(--font-mono); font-size: 12px; }
+    .ontology-table td:nth-child(2) { color: #e2e8f0; font-weight: 700; padding-right: 28px; }
+    .ontology-table td:nth-child(2) .dom { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .02em; margin-top: 3px; }
+    .ontology-table td:nth-child(3) { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+
+  <!-- Header Bar -->
+  <header>
+    <div class="brand-area">
+      <div class="brand-icon">&lt;&gt;</div>
+      <div class="title-group">
+        <h1>Ontology</h1>
+        <p>A view of the glossary. If they disagree, the glossary wins.</p>
+      </div>
+    </div>
+
+    <div class="controls-bar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="Find entity (e.g. Superset)...">
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnDiagramView" onclick="switchView('diagram')">Ontology</button>
+        <button class="view-btn" id="btnTableView" onclick="switchView('table')">Glossary</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    
+    <!-- Left Sidebar Panel -->
+    <div class="sidebar">
+      <!-- Group list (heading reads "Functional Domains", or "Workflows" in workflow scope).
+           Commented out on request, 2026-09-20. Kept for a possible return: renderDomainList()
+           and the meta.groupLabel line both check for these ids and do nothing when absent,
+           so uncommenting these four lines is the whole of bringing it back.
+        <div class="sidebar-section">
+          <h3 id="groupLabel">Functional Domains</h3>
+          <div class="domain-list" id="domainList"></div>
+        </div>
+      -->
+
+      <!-- Semantic Passport Panel -->
+      <div class="inspector-panel" id="inspectorPanel">
+        <div class="sidebar-section-header">
+          <h3>Semantic Passport</h3>
+        </div>
+
+        <div class="entity-header">
+          <span class="entity-id-tag" id="inspectDomainTag">Domain</span>
+          <div class="entity-name" id="inspectName">Select Entity</div>
+        </div>
+
+        <!-- Definition -->
+        <div class="passport-def-box">
+          <div class="def-label">DEFINITION</div>
+          <p id="inspectFullDefText" class="def-full-text">Click any entity on the canvas to view its definition and relationships.</p>
+        </div>
+
+        <!-- Inbound & Outbound Relationships -->
+        <div class="rel-group">
+          <div class="rel-title incoming">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            CONSUMES
+          </div>
+          <div class="rel-list" id="inspectConsumes"></div>
+        </div>
+
+        <div class="rel-group" style="margin-top: 1.5rem;">
+          <div class="rel-title outgoing">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            PRODUCES
+          </div>
+          <div class="rel-list" id="inspectProduces"></div>
+        </div>
+
+        <div class="rel-group" style="margin-top: 1.5rem;">
+          <div class="rel-title structure">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            STRUCTURE
+          </div>
+          <div class="rel-list" id="inspectStructure"></div>
+        </div>
+
+        <!-- Machine detail: what an agent reads about this term. Folded by default; the canvas
+             never shows any of it. -->
+        <div class="machine-detail folded" id="inspectMachine">
+          <button type="button" class="machine-toggle" aria-expanded="false"
+                  onclick="const d = this.parentNode; d.classList.toggle('folded'); this.setAttribute('aria-expanded', String(!d.classList.contains('folded')));">Machine detail</button>
+          <div class="machine-body" id="inspectMachineBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viewport Area -->
+    <div class="viewport" id="viewport">
+      
+      <!-- Top Instruction Banner -->
+      <div class="blueprint-banner">
+        <div class="banner-status">
+          <button class="status-pill reset-btn" onclick="resetView()" title="Back to the default view: nothing selected, no lens, search cleared">RESET</button>
+          <div class="banner-instruction">
+            Click a term to see its lines and its <strong>Semantic Passport</strong>.
+          </div>
+        </div>
+
+        <div class="interaction-legend">
+          <div class="bar-group">
+            <label class="legend-toggle" title="A workflow is a lens over the categories, not a second grouping. It marks who is in the sequence and where.">
+              <span class="bar-label">Workflow</span>
+              <select class="lens-select" id="workflowLens" onchange="setWorkflowLens(this.value)">
+                <option value="">None</option>
+              </select>
+            </label>
+            <label class="legend-toggle" title="A depends-on edge is drawn where the glossary states no relation for the pair">
+              <input type="checkbox" id="toggleDepends" checked onchange="setDependsVisible(this.checked)">
+              <span id="dependsCount">depends-on edges</span>
+            </label>
+          </div>
+          <div class="bar-group bar-key">
+            <span class="bar-label">Show</span>
+            <button type="button" class="legend-chip chip-inc" aria-pressed="true" onclick="toggleFlow('consumes', this)" title="Show or hide consuming lines on the canvas">← CONSUMING</button>
+            <button type="button" class="legend-chip chip-out" aria-pressed="true" onclick="toggleFlow('produces', this)" title="Show or hide producing lines on the canvas">PRODUCING →</button>
+            <button type="button" class="legend-chip chip-str" aria-pressed="false" onclick="toggleFlow('structure', this)" title="Show or hide structure and depends-on lines on the canvas">STRUCTURE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Stage -->
+      <div id="canvas-stage" class="at-rest">
+        <div id="subgraphs-layer"></div>
+        <svg id="svg-traces"></svg>
+        <div id="edge-labels-layer"></div>
+        <div id="nodes-layer"></div>
+      </div>
+
+      <!-- Zoom Controls -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="adjustZoom(1.15)" title="Zoom In">+</button>
+        <button class="zoom-btn" onclick="adjustZoom(0.85)" title="Zoom Out">-</button>
+        <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">⟲</button>
+      </div>
+
+    </div>
+
+    <!-- Table View Container -->
+    <div class="table-view-container" id="tableView">
+      <h2 style="margin-bottom: 1rem; font-family: var(--font-mono); font-size: 1.1rem; color: #fff;">Glossary</h2>
+      <table class="ontology-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Term</th>
+            <th>Definition</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Populated via JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="ontology-data.js"></script>
+  <script>
+    // Data comes from ./ontology-data.js: meta, entities, subgraphs, relationships.
+    // Generated by tools/render-ontology.py. Never edit the data by hand.
+
+    let selectedNodeId = null;
+    let dependsVisible = true;
+
+    // An edge is either a relation the glossary states, with the verb its definition uses, or a
+    // depends-on fallback drawn because no relation links the pair. The kind rides on every edge
+    // so both the base state and the selected state keep it.
+    const isDepends = rel => rel && rel.kind === 'depends';
+    const flowOf = rel => (rel && rel.flow) || 'produces';
+    const baseTraceClass = rel =>
+      (isDepends(rel) ? 'circuit-trace trace-depends' : 'circuit-trace') + ` flow-${flowOf(rel)}`;
+    const baseBadgeClass = rel => isDepends(rel) ? 'edge-badge badge-depends' : 'edge-badge';
+
+
+    // The key doubles as a filter for the canvas lines. People read what moves first, consuming
+    // and producing, and containment after, so structure starts off. The passport always lists
+    // all three. A project whose lines are mostly structure can start with it on:
+    // `ontology: show_structure: true` in its project.yaml reaches the page as meta.linesOn.
+    const flowShown = Object.assign({ consumes: true, produces: true, structure: false },
+                                    (typeof meta !== 'undefined' && meta.linesOn) || {});
+    document.querySelectorAll('.bar-key .legend-chip').forEach(btn => {
+      const g = btn.classList.contains('chip-inc') ? 'consumes' : btn.classList.contains('chip-out') ? 'produces' : 'structure';
+      btn.setAttribute('aria-pressed', String(!!flowShown[g]));
+    });
+    function lineGroup(rel) {
+      if (isDepends(rel) || flowOf(rel) === 'structure') return 'structure';
+      const id = selectedNodeId;
+      if (!id || (rel.from !== id && rel.to !== id)) return 'movement';
+      const inbound = flowOf(rel) === 'consumes' ? rel.from === id : rel.to === id;
+      return inbound ? 'consumes' : 'produces';
+    }
+    function applyFlowFilter() {
+      relationships.forEach(rel => {
+        const g = lineGroup(rel);
+        // A line that moves but touches no selected term is both consumed and produced: it shows
+        // while either switch is on.
+        const on = g === 'movement' ? (flowShown.consumes || flowShown.produces) : flowShown[g];
+        const trace = document.getElementById(`trace-${rel.id}`);
+        const badge = document.getElementById(`badge-${rel.id}`);
+        if (trace) trace.classList.toggle('flow-off', !on);
+        if (badge) badge.classList.toggle('flow-off', !on);
+      });
+    }
+    function toggleFlow(group, btn) {
+      flowShown[group] = !flowShown[group];
+      btn.setAttribute('aria-pressed', String(flowShown[group]));
+      applyFlowFilter();
+    }
+
+    function applyDependsVisibility() {
+      relationships.forEach(rel => {
+        if (!isDepends(rel)) return;
+        const trace = document.getElementById(`trace-${rel.id}`);
+        const badge = document.getElementById(`badge-${rel.id}`);
+        if (trace) trace.classList.toggle('trace-hidden', !dependsVisible);
+        if (badge) badge.classList.toggle('badge-hidden', !dependsVisible);
+      });
+      applyFlowFilter();
+    }
+
+    function setDependsVisible(on) {
+      dependsVisible = on;
+      applyDependsVisibility();
+    }
+
+    // The workflow lens. The glossary's categories lay the nodes out and nothing moves them; a
+    // workflow only marks which nodes are in the sequence and what position each holds. A term
+    // in two sequences carries a position in each, so the lens reads its own name out of the
+    // node's workflow list rather than assuming one.
+    let currentWorkflow = '';
+
+    const workflowsOf = id => (entities[id] && entities[id].workflow) || [];
+    const positionIn = (id, name) => {
+      const hit = workflowsOf(id).find(w => w.name === name);
+      return hit ? hit.position : null;
+    };
+
+    function applyWorkflowLens() {
+      for (let id in entities) {
+        const card = document.getElementById(`node-${id}`);
+        if (!card) continue;
+        card.classList.remove('wf-member', 'wf-other');
+        const old = card.querySelector('.wf-pos');
+        if (old) old.remove();
+        if (!currentWorkflow) continue;
+        const pos = positionIn(id, currentWorkflow);
+        if (pos === null) { card.classList.add('wf-other'); continue; }
+        card.classList.add('wf-member');
+        const badge = document.createElement('div');
+        badge.className = 'wf-pos';
+        badge.textContent = pos;
+        badge.title = `${currentWorkflow} step ${pos}`;
+        card.appendChild(badge);
+      }
+    }
+
+    function setWorkflowLens(name) {
+      currentWorkflow = name || '';
+      const sel = document.getElementById('workflowLens');
+      if (sel) sel.classList.toggle('lens-on', !!currentWorkflow);
+      applyWorkflowLens();
+    }
+
+    function renderWorkflowLens() {
+      const sel = document.getElementById('workflowLens');
+      if (!sel) return;
+      const wf = (typeof meta !== 'undefined' && meta.workflows) || {};
+      const names = Object.keys(wf).sort();
+      // No workflow keys in this glossary: the control would only ever say "no workflow", so
+      // it is not shown. A glossary with two sequences keeps it.
+      if (names.length === 0) { sel.closest('label').style.display = 'none'; return; }
+      names.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n;
+        o.textContent = `${n} (${wf[n].length})`;
+        sel.appendChild(o);
+      });
+    }
+
+    function renderDependsToggle() {
+      const label = document.getElementById('dependsCount');
+      const box = document.getElementById('toggleDepends');
+      if (!label || !box) return;
+      const n = relationships.filter(isDepends).length;
+      const total = relationships.length;
+      label.textContent = `${n} of ${total} depends-on`;
+      if (n === 0) {
+        box.disabled = true;
+        label.textContent = 'no depends-on edges';
+      }
+    }
+
+    // Initialize Canvas Renderer
+    function renderHeader() {
+      if (typeof meta === 'undefined') return;
+      const h1 = document.querySelector('.title-group h1');
+      const p = document.querySelector('.title-group p');
+      if (h1 && meta.title) h1.textContent = meta.title;
+      if (p && meta.subtitle) p.textContent = meta.subtitle;
+      if (meta.title) document.title = meta.title;
+      // Inside a review package the data file also defines reviewHome: a way back to its index.
+      if (typeof reviewHome !== 'undefined' && h1 && !document.getElementById('homeLink')) {
+        const a = document.createElement('a');
+        a.id = 'homeLink'; a.href = reviewHome.href; a.textContent = '\u2190 ' + reviewHome.label;
+        a.style.cssText = 'display:block;font:600 11px/1.4 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#f59e0b;text-decoration:none;margin-bottom:2px';
+        h1.parentNode.insertBefore(a, h1);
+      }
+      const label = document.getElementById('groupLabel');
+      if (label && meta.groupLabel) label.textContent = meta.groupLabel;
+    }
+
+    function renderDomainList() {
+      const list = document.getElementById('domainList');
+      if (!list) return;
+      list.innerHTML = '';
+      subgraphs.forEach(sg => {
+        const prefix = sg.id.replace('G', '');
+        const count = Object.values(entities).filter(en => en.code.split('.')[0] === prefix).length;
+        const el = document.createElement('div');
+        el.className = 'domain-item';
+        el.onclick = () => filterDomain(sg.id);
+        el.innerHTML = `
+          <div class="domain-info">
+            <span class="domain-badge" style="background-color:${sg.color};color:${sg.color}"></span>
+            <span>${sg.title}</span>
+          </div>
+          <span class="domain-count">${count}</span>`;
+        list.appendChild(el);
+      });
+    }
+
+    window.addEventListener('load', () => {
+      renderHeader();
+      renderDomainList();
+      renderSubgraphs();
+      renderNodeCards();
+      renderTracesAndLabels();
+      renderDependsToggle();
+      renderWorkflowLens();
+      applyDependsVisibility();
+      populateTable();
+      setupPanZoom();
+
+      // Click background to reset
+      document.getElementById('viewport').addEventListener('click', (e) => {
+        if (!e.target.closest('.node-card') && !e.target.closest('.rel-card')) {
+          resetSelection();
+        }
+      });
+    });
+
+    // Render Subgraph Frames
+    function renderSubgraphs() {
+      const container = document.getElementById('subgraphs-layer');
+      container.innerHTML = '';
+
+      subgraphs.forEach(sg => {
+        const el = document.createElement('div');
+        el.className = 'subgraph-frame';
+        el.style.left = sg.x + 'px';
+        el.style.top = sg.y + 'px';
+        el.style.width = sg.w + 'px';
+        el.style.height = sg.h + 'px';
+        el.style.borderColor = sg.color;
+
+        el.innerHTML = `<div class="subgraph-title-badge" style="color:${sg.color}">${sg.title}</div>`;
+        container.appendChild(el);
+      });
+      // Grow the stage to fit the frames, so a tall or stacked column is never cut off. The
+      // lines are drawn in an SVG sized to the stage, and would clip at its edge.
+      const stage = document.getElementById('canvas-stage');
+      const right = Math.max(...subgraphs.map(sg => sg.x + sg.w)) + 100;
+      const bottom = Math.max(...subgraphs.map(sg => sg.y + sg.h)) + 100;
+      stage.style.width = Math.max(2500, right) + 'px';
+      stage.style.height = Math.max(1600, bottom) + 'px';
+    }
+
+    // Render HTML Node Cards
+    function renderNodeCards() {
+      const container = document.getElementById('nodes-layer');
+      container.innerHTML = '';
+
+      for (let id in entities) {
+        const item = entities[id];
+        const card = document.createElement('div');
+        card.className = 'node-card';
+        card.id = `node-${id}`;
+        card.style.left = item.x + 'px';
+        card.style.top = item.y + 'px';
+        card.style.borderColor = item.color;
+
+        card.innerHTML = `
+          <div class="node-icon-box" style="color:${item.color}">${item.icon}</div>
+          <div class="node-body">
+            <div class="node-header-row">
+              <span class="node-code-tag" style="color:${item.color}">${item.code}</span>
+              <span class="node-title-text">${item.name}</span>
+            </div>
+            <div class="node-subtitle-text">${item.sub}</div>
+          </div>
+        `;
+
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectNode(id);
+        });
+
+        container.appendChild(card);
+      }
+    }
+
+    // Calculate PCB Circuit Paths
+    function renderTracesAndLabels() {
+      const svg = document.getElementById('svg-traces');
+      const labelsLayer = document.getElementById('edge-labels-layer');
+      svg.innerHTML = '';
+      labelsLayer.innerHTML = '';
+
+      const nodeW = 270;
+      const nodeH = 80;
+
+      relationships.forEach((rel, index) => {
+        const source = entities[rel.from];
+        const target = entities[rel.to];
+        if (!source || !target) return;
+
+        let x1, y1, x2, y2;
+        
+        if (target.x > source.x) {
+          x1 = source.x + nodeW;
+          y1 = source.y + nodeH / 2;
+          x2 = target.x;
+          y2 = target.y + nodeH / 2;
+        } else if (target.x === source.x) {
+          x1 = source.x + nodeW;
+          y1 = source.y + nodeH / 2;
+          x2 = target.x + nodeW;
+          y2 = target.y + nodeH / 2;
+        } else {
+          x1 = source.x;
+          y1 = source.y + nodeH / 2;
+          x2 = target.x + nodeW;
+          y2 = target.y + nodeH / 2;
+        }
+
+        const channelOffset = (index % 5 - 2) * 12;
+        let d = '';
+        let labelX = 0, labelY = 0;
+
+        if (target.x > source.x) {
+          const midX = source.x + nodeW + (target.x - (source.x + nodeW)) / 2 + channelOffset;
+          const r = 10;
+          const dirY = y2 >= y1 ? 1 : -1;
+
+          if (Math.abs(y2 - y1) < 10) {
+            d = `M ${x1} ${y1} H ${x2}`;
+            labelX = (x1 + x2) / 2;
+            labelY = y1;
+          } else {
+            d = `M ${x1} ${y1} H ${midX - r} Q ${midX} ${y1} ${midX} ${y1 + dirY * r} V ${y2 - dirY * r} Q ${midX} ${y2} ${midX + r} ${y2} H ${x2}`;
+            labelX = midX;
+            labelY = (y1 + y2) / 2;
+          }
+        } else if (target.x === source.x) {
+          const outX = source.x + nodeW + 30 + (index % 4) * 14;
+          const dirY = y2 >= y1 ? 1 : -1;
+          const r = 10;
+          d = `M ${x1} ${y1} H ${outX - r} Q ${outX} ${y1} ${outX} ${y1 + dirY * r} V ${y2 - dirY * r} Q ${outX} ${y2} ${outX - r} ${y2} H ${x2}`;
+          labelX = outX;
+          labelY = (y1 + y2) / 2;
+        } else {
+          d = `M ${x1} ${y1} H ${x1 - 25} V ${y2} H ${x2}`;
+          labelX = (x1 + x2) / 2;
+          labelY = y2;
+        }
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', baseTraceClass(rel));
+        path.setAttribute('id', `trace-${rel.id}`);
+        svg.appendChild(path);
+
+        const badge = document.createElement('div');
+        badge.className = baseBadgeClass(rel);
+        badge.id = `badge-${rel.id}`;
+        badge.style.left = labelX + 'px';
+        badge.style.top = labelY + 'px';
+        badge.textContent = rel.rel;
+        labelsLayer.appendChild(badge);
+      });
+    }
+
+    // Select Entity Node & Update Passport
+
+    // Lines show only when a term is selected, or a value stream lens is on.
+    function updateRest() {
+      const stage = document.getElementById('canvas-stage');
+      const lens = typeof currentStream !== 'undefined' && currentStream;
+      if (stage) stage.classList.toggle('at-rest', !selectedNodeId && !lens);
+    }
+    function selectNode(id) {
+      selectedNodeId = id;
+      const targetEntity = entities[id];
+      if (!targetEntity) return;
+      updateRest();
+
+      const byKind = (a, b) => (isDepends(a) ? 1 : 0) - (isDepends(b) ? 1 : 0);
+      const incomingRels = relationships.filter(r => r.to === id).sort(byKind);
+      const outgoingRels = relationships.filter(r => r.from === id).sort(byKind);
+
+      // Colour by what the relation claims, not by which end of the arrow this node sits on.
+      // "A station reads a ticket" is written station to ticket, so the graph has the station as
+      // the source, while the work moves the other way. Colouring from the arrow would paint that
+      // edge as producing, which is the thing it is not.
+      const roleOf = rel => {
+        if (rel.from !== id && rel.to !== id) return null;
+        if (isDepends(rel) || flowOf(rel) === 'structure') return 'structure';
+        const inbound = flowOf(rel) === 'consumes' ? rel.from === id : rel.to === id;
+        return inbound ? 'consumes' : 'produces';
+      };
+      const RANK = { consumes: 0, produces: 1, structure: 2 };
+      const nodeRole = {};
+      relationships.forEach(rel => {
+        const role = roleOf(rel);
+        if (!role) return;
+        const nid = rel.from === id ? rel.to : rel.from;
+        if (nid === id) return;
+        if (!(nid in nodeRole) || RANK[role] < RANK[nodeRole[nid]]) nodeRole[nid] = role;
+      });
+
+      const CARD = { consumes: 'node-incoming', produces: 'node-outgoing', structure: 'node-structure' };
+      for (let nid in entities) {
+        const card = document.getElementById(`node-${nid}`);
+        if (!card) continue;
+        if (nid === id) card.className = 'node-card node-selected';
+        else if (nodeRole[nid]) card.className = `node-card ${CARD[nodeRole[nid]]}`;
+        else card.className = 'node-card node-dimmed';
+      }
+
+      const TRACE = { consumes: 'trace-incoming', produces: 'trace-outgoing', structure: 'trace-structure' };
+      const BADGE = { consumes: 'badge-incoming', produces: 'badge-outgoing', structure: 'badge-structure' };
+      relationships.forEach(rel => {
+        const trace = document.getElementById(`trace-${rel.id}`);
+        const badge = document.getElementById(`badge-${rel.id}`);
+        if (!trace || !badge) return;
+        const role = roleOf(rel);
+        if (role) {
+          trace.setAttribute('class', `${baseTraceClass(rel)} ${TRACE[role]}`);
+          badge.className = `${baseBadgeClass(rel)} ${BADGE[role]}`;
+        } else {
+          trace.setAttribute('class', `${baseTraceClass(rel)} trace-dimmed`);
+          badge.className = `${baseBadgeClass(rel)} badge-dimmed`;
+        }
+      });
+
+      applyDependsVisibility();
+      applyWorkflowLens();
+      updateInspector(id, incomingRels, outgoingRels);
+    }
+
+    // Reset Selection
+    // The default view: nothing selected, no lens, search cleared. Zoom is left where it is.
+    function resetView() {
+      const s = document.getElementById('searchInput'); if (s) s.value = '';
+      const w = document.getElementById('workflowLens'); if (w) { w.value = ''; if (typeof setWorkflowLens === 'function') setWorkflowLens(''); }
+      resetSelection();
+    }
+    function resetSelection() {
+      selectedNodeId = null;
+      updateRest();
+
+      for (let nid in entities) {
+        const card = document.getElementById(`node-${nid}`);
+        if (card) card.className = 'node-card';
+      }
+
+      relationships.forEach(rel => {
+        const trace = document.getElementById(`trace-${rel.id}`);
+        const badge = document.getElementById(`badge-${rel.id}`);
+        if (trace) trace.setAttribute('class', baseTraceClass(rel));
+        if (badge) badge.className = baseBadgeClass(rel);
+      });
+      applyDependsVisibility();
+      applyWorkflowLens();
+
+      const inspector = document.getElementById('inspectorPanel');
+      if (inspector) inspector.classList.remove('active');
+    }
+
+    // Toggle Full Definition Visibility
+    // Update Sidebar Semantic Passport Panel
+    function updateInspector(id, incomingRels, outgoingRels) {
+      const entity = entities[id];
+      const inspector = document.getElementById('inspectorPanel');
+      if (!entity || !inspector) return;
+
+      inspector.classList.add('active');
+      document.getElementById('inspectName').textContent = `${entity.code} ${entity.name}`;
+      
+      const tag = document.getElementById('inspectDomainTag');
+      tag.textContent = entity.domain;
+      tag.style.backgroundColor = entity.color;
+      tag.style.color = '#060b17';
+
+      // The definition, exactly as the glossary states it
+      document.getElementById('inspectFullDefText').textContent = entity.fullDef;
+
+      // Three groups, because the graph holds three kinds of claim. Consumes and produces are
+      // about where the work moves, so they follow rel.flow rather than which end of the arrow
+      // this node happens to sit on. Structure is containment, kind and requirement, which is
+      // not a flow at all, and a depends-on fallback is structural by definition.
+      const all = incomingRels.concat(outgoingRels);
+      const other = r => (r.from === id ? r.to : r.from);
+      const isStruct = r => isDepends(r) || flowOf(r) === 'structure';
+      // A consuming verb runs against its sentence: the subject takes the object in.
+      const flowsIn  = r => flowOf(r) === 'consumes' ? r.from === id : r.to === id;
+      const consumes  = all.filter(r => !isStruct(r) && flowsIn(r));
+      const produces  = all.filter(r => !isStruct(r) && !flowsIn(r));
+      const structure = all.filter(isStruct);
+
+      const card = (r, dir) => {
+        const o = entities[other(r)];
+        if (!o) return '';
+        const cls = r.from === id ? 'rel-label-out' : 'rel-label-inc';
+        const phrase = r.from === id
+          ? `<span class="${cls}">${r.rel}</span> <strong>${o.name}</strong>`
+          : `<strong>${o.name}</strong> <span class="${cls}">${r.rel}</span> ${entity.name}`;   // the selected term by name, never "this"
+        return `<div class="rel-card${isDepends(r) ? ' rel-card-depends' : ''}" onclick="event.stopPropagation(); selectNode('${other(r)}')">`
+             + `<span>${phrase}</span>${dir ? `<span class="rel-dir">${dir}</span>` : ''}</div>`;
+      };
+      const fill = (elId, rels, dir, empty) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = rels.length
+          ? rels.map(r => card(r, dir)).join('')
+          : `<div style="color:#64748b; font-size:0.78rem; font-family:var(--font-mono)">${empty}</div>`;
+      };
+      fill('inspectConsumes', consumes, '\u2190 in', 'Nothing flows in');
+      fill('inspectProduces', produces, 'out \u2192', 'Nothing flows out');
+      fill('inspectStructure', structure, '', 'No structural relation');
+      fillMachineDetail(id, all);
+    }
+
+    // Machine detail: the term as an agent reads it, from the same data file. Each relation is
+    // shown in both directions: the line as written, and its reverse from the kind's inverse,
+    // marked generated. The canvas keeps one line, one direction, one label; this is the only
+    // place the rest appears. Text is escaped here because these values are free text.
+    function escMachine(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g,
+        c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function fillMachineDetail(id, rels) {
+      const el = document.getElementById('inspectMachineBody');
+      const e = entities[id];
+      if (!el || !e) return;
+      const kinds = (typeof meta !== 'undefined' && meta.kinds) || {};
+      const notSet = '<span class="machine-muted">not set</span>';
+      const val = v => (v === undefined || v === null || v === '') ? notSet : escMachine(v);
+      const list = a => (a && a.length) ? a.map(escMachine).join(' \u00b7 ') : notSet;
+      const byName = {};
+      Object.values(entities).forEach(x => { byName[x.name] = x; });
+      // The is-a chain, walked up by name. A parent outside this view ends the walk by name only.
+      const chain = [];
+      const seen = new Set([e.name]);
+      let p = e.isA;
+      while (p && !seen.has(p)) { chain.push(p); seen.add(p); p = byName[p] ? byName[p].isA : null; }
+      const rows = [
+        ['type', val(e.type)], ['status', val(e.status)],
+        ['core', e.core === undefined ? notSet : (e.core ? 'yes' : 'no')],
+        ['also called', list(e.alsoCalled)], ['not confused with', list(e.notConfused)],
+        ['is a', chain.length ? chain.map(escMachine).join(' \u2192 ') : notSet],
+        ['aspect of', val(e.aspectOf)], ['rulings', list(e.rulings)],
+      ];
+      const lines = rels.filter(r => r.kind === 'relation').map(r => {
+        const mine = r.from === id;
+        const o = entities[mine ? r.to : r.from];
+        const oname = escMachine(o ? o.name : '');
+        const k = r.relKind;
+        if (mine) {
+          const tag = k ? `<code>${escMachine(k)}</code>${r.relKindInferred ? ' <span class="machine-muted">inferred from the verb</span>' : ''}`
+                        : '<span class="machine-muted">kind not set</span>';
+          return `<div class="machine-rel">${tag} ${oname}<br><span class="machine-muted">written: ${escMachine(e.name)} ${escMachine(r.rel)} ${oname}</span></div>`;
+        }
+        const inv = k && kinds[k] ? kinds[k].inverse : null;
+        const tag = inv ? `<code>${escMachine(inv)}</code> <span class="machine-muted">generated</span>`
+                        : '<span class="machine-muted">no kind, so no reverse</span>';
+        return `<div class="machine-rel">${tag} ${oname}<br><span class="machine-muted">from the line: ${oname} ${escMachine(r.rel)} ${escMachine(e.name)}</span></div>`;
+      });
+      el.innerHTML = `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`
+        + `<div class="machine-subhead">RELATIONS, BOTH DIRECTIONS</div>`
+        + (lines.length ? lines.join('') : `<div class="machine-rel"><span class="machine-muted">No relation in this view</span></div>`);
+    }
+
+    // Populate Entity Matrix Table
+    function populateTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      for (let key in entities) {
+        const item = entities[key];
+
+        tbody.innerHTML += `
+          <tr>
+            <td><code style="color:${item.color}">${item.code}</code></td>
+            <td><strong>${item.name}</strong><div class="dom" style="color:${item.color}">${item.domain}</div></td>
+            <td>${item.fullDef}</td>
+          </tr>
+        `;
+      }
+    }
+
+    // Pan & Zoom Engine
+    let zoomLevel = 0.85;
+    let panX = 40;
+    let panY = 20;
+    let isDragging = false;
+    let startX, startY;
+
+    function setupPanZoom() {
+      const viewport = document.getElementById('viewport');
+
+      updateTransform();
+
+      viewport.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.node-card') || e.target.closest('.zoom-controls') || e.target.closest('.blueprint-banner') || e.target.closest('.sidebar')) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        adjustZoom(factor);
+      }, { passive: false });
+    }
+
+    function adjustZoom(factor) {
+      zoomLevel = Math.max(0.3, Math.min(2.5, zoomLevel * factor));
+      updateTransform();
+    }
+
+    function resetZoom() {
+      zoomLevel = 0.85;
+      panX = 40;
+      panY = 20;
+      updateTransform();
+    }
+
+    function updateTransform() {
+      const stage = document.getElementById('canvas-stage');
+      stage.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+    }
+
+    // View Switching
+    function switchView(view) {
+      document.getElementById('btnDiagramView').classList.toggle('active', view === 'diagram');
+      document.getElementById('btnTableView').classList.toggle('active', view === 'table');
+
+      if (view === 'diagram') {
+        document.getElementById('viewport').style.display = 'block';
+        document.getElementById('tableView').classList.remove('active');
+      } else {
+        document.getElementById('viewport').style.display = 'none';
+        document.getElementById('tableView').classList.add('active');
+      }
+    }
+
+    // Search Filter
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      if (!query) {
+        resetSelection();
+        return;
+      }
+
+      for (let key in entities) {
+        if (entities[key].name.toLowerCase().includes(query) || key.toLowerCase().includes(query) || entities[key].code.includes(query)) {
+          selectNode(key);
+          break;
+        }
+      }
+    });
+
+    function filterDomain(domainId) {
+      const codePrefix = domainId.replace('G', '');
+      for (let key in entities) {
+        if (entities[key].code.startsWith(codePrefix)) {
+          selectNode(key);
+          break;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
